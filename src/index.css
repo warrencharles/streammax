@@ -1,0 +1,78 @@
+@import "tailwindcss";
+
+@layer components {
+  .glow-card {
+    position: relative;
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.9) 100%);
+    border-radius: 24px;
+    /* 3D Border effect using multiple shadows and a thin border */
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    overflow: visible;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    /* 3D depth shadows */
+    box-shadow:
+      inset 0 1px 1px rgba(255, 255, 255, 0.1),
+      0 18px 28px rgba(0, 140, 255, 0.22),
+      0 10px 60px rgba(0, 140, 255, 0.18),
+      0 24px 120px rgba(0, 140, 255, 0.12);
+  }
+
+  /* 3D Edge Highlight */
+  .glow-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 50%, rgba(0, 140, 255, 0.3) 100%);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  /* Bottom Glow Aura */
+  .glow-card-aura {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(120% 80% at 50% 100%,
+      rgba(0, 140, 255, 0.15) 0%,
+      rgba(0, 140, 255, 0.05) 35%,
+      rgba(0, 0, 0, 0) 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* thin blue line near bottom */
+  .glow-card::after {
+    content: "";
+    position: absolute;
+    left: 10%;
+    right: 10%;
+    bottom: 14px;
+    height: 1.5px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, transparent, rgba(0, 140, 255, 0.9), transparent);
+    box-shadow: 0 0 10px rgba(0, 140, 255, 0.8);
+    opacity: 0.8;
+    z-index: 3;
+    transition: all 0.5s ease;
+  }
+
+  .glow-card:hover {
+    transform: translateY(-4px) scale(1.01);
+    border-color: rgba(0, 140, 255, 0.3);
+    box-shadow:
+      inset 0 1px 1px rgba(255, 255, 255, 0.15),
+      0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  }
+
+  .glow-card:hover::after {
+    opacity: 0;
+    transform: scaleX(0.5);
+  }
+}
