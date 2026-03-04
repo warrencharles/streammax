@@ -1,5 +1,4 @@
 import express from "express";
-import { createServer as createViteServer } from "vite";
 import axios from "axios";
 import * as cheerio from "cheerio";
 import cors from "cors";
@@ -1051,7 +1050,7 @@ async function startServer() {
           } catch (e) {
             resolvedUrl = trimmed;
           }
-          return `http://localhost:3000/api/proxy?url=${encodeURIComponent(resolvedUrl)}&referer=${encodeURIComponent(referer)}`;
+          return `/api/proxy?url=${encodeURIComponent(resolvedUrl)}&referer=${encodeURIComponent(referer)}`;
         });
 
         res.setHeader("Content-Type", "application/vnd.apple.mpegurl");
@@ -1067,30 +1066,40 @@ async function startServer() {
     }
   });
 
-  // Vite middleware for development
-  if (process.env.NODE_ENV !== "production") {
+  // Vite middleware for development (only if not on Vercel)
+  if (!IS_VERCEL && process.env.NODE_ENV !== "production") {
+    // Dynamic import to avoid crashing on Vercel (where vite is not installed)
+    const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",
     });
     app.use(vite.middlewares);
-  } else {
+  } else if (!IS_VERCEL) {
+    // Local production serving
     app.use(express.static("dist"));
     app.get("*", (req, res) => {
-      res.sendFile("dist/index.html", { root: "." });
+      res.sendFile(path.join(process.cwd(), "dist/index.html"));
     });
   }
 
 
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-  });
+  // Serverless environments handled by exports
+  if (!IS_VERCEL) {
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log(`Server running on http://localhost:${PORT}`);
+    });
+  }
 
   return app;
 }
 
-const appPromise = startServer();
-export default (async (req: any, res: any) => {
-  const app = await appPromise;
-  app(req, res);
-});
+// Global promise for the app instance to handle serverless cold starts
+let cachedApp: any = null;
+
+export default async (req: any, res: any) => {
+  if (!cachedApp) {
+    cachedApp = await startServer();
+  }
+  return cachedApp(req, res);
+};
