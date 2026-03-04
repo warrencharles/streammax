@@ -272,10 +272,10 @@ const App: React.FC = () => {
     setEmbedUrl(null);
 
     const isHttps = window.location.protocol === "https:";
-    const getSecureUrl = (url: string) => {
+    const getSecureUrl = (url: string, referer?: string) => {
       if (isHttps && url.startsWith("http://") && !url.includes(window.location.hostname)) {
         console.log("[Sports] Mixed Content detected, using secure-iframe proxy for:", url);
-        return `/api/secure-iframe?url=${encodeURIComponent(url)}`;
+        return `/api/secure-iframe?url=${encodeURIComponent(url)}${referer ? `&referer=${encodeURIComponent(referer)}` : ""}`;
       }
       return url;
     };
@@ -350,6 +350,17 @@ const App: React.FC = () => {
     setEmbedUrl(null);
     setStreamUrl(null);
     setServerIndex(index);
+
+    const isHttps = window.location.protocol === "https:";
+    const getSecureUrl = (url: string) => {
+      // For movie servers like UpCloud/MegaCloud/RabbitStream, we ALWAYS need the hdtoday referrer
+      // And on Vercel (HTTPS), we use our proxy to spoof it.
+      if (isHttps && !url.includes(window.location.hostname)) {
+        return `/api/secure-iframe?url=${encodeURIComponent(url)}&referer=${encodeURIComponent("https://hdtodayz.to/")}`;
+      }
+      return url;
+    };
+
     try {
       console.log(`[Frontend] Fetching source for ID: ${id}, type: ${type}, index: ${index}`);
       const response = await fetch(`/api/source?id=${id}&type=${type}&index=${index}`);
@@ -368,7 +379,8 @@ const App: React.FC = () => {
         if (data.type === "m3u8") {
           setStreamUrl(data.link);
         } else {
-          setEmbedUrl(data.link);
+          // It's an iframe (UpCloud, MegaCloud, etc.)
+          setEmbedUrl(getSecureUrl(data.link));
         }
       } else {
         console.error("[Frontend] No link in response:", data);

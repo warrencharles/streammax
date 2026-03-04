@@ -668,31 +668,44 @@ app.get("/api/source", async (req, res) => {
 
     try {
         const effectiveListUrl = type === "tv" ? `https://hdtodayz.to/ajax/episode/servers/${id}` : `https://hdtodayz.to/ajax/episode/list/${id}`;
+        console.log(`[Source] Fetching servers from: ${effectiveListUrl}`);
         const listRes = await axios.get(effectiveListUrl, { headers: ajaxHeaders, timeout: 10000 });
         const $ = cheerio.load(listRes.data);
         const servers = $(".nav-item a[data-id]").map((_, el) => ({ id: $(el).attr("data-id")!, name: $(el).text().trim() || $(el).attr("title") || "Unknown" })).get();
 
+        console.log(`[Source] Found ${servers.length} servers: ${servers.map(s => s.name).join(", ")}`);
         if (servers.length === 0) return res.status(404).json({ error: "No servers found" });
 
         for (let i = serverIndex; i < servers.length; i++) {
             const server = servers[i];
             try {
+                console.log(`[Source] Fetching link for server: ${server.name} (${server.id})`);
                 const srcRes = await axios.get(`https://hdtodayz.to/ajax/episode/sources/${server.id}`, { headers: ajaxHeaders, timeout: 10000 });
                 const embedLink = srcRes.data?.link;
-                if (!embedLink) continue;
+                if (!embedLink) {
+                    console.log(`[Source] Server ${server.name} returned NO link`);
+                    continue;
+                }
+
+                console.log(`[Source] Server ${server.name} returned embed: ${embedLink}`);
 
                 if (embedLink.includes("videostr.net") || embedLink.includes("rabbitstream.net") || embedLink.includes("megacloud.tv") || embedLink.includes("upcloud")) {
                     const embedPage = await axios.get(embedLink, { headers: { "User-Agent": "Mozilla/5.0", "Referer": "https://hdtodayz.to/" }, timeout: 8000 });
                     const m3u8Match = embedPage.data.match(/["'](https?:\/\/[^"']+\.m3u8[^"']*)["']/i);
                     if (m3u8Match) {
+                        console.log(`[Source] Found M3U8 in embed: ${m3u8Match[1]}`);
                         return res.json({ type: "m3u8", link: `/api/proxy?url=${encodeURIComponent(m3u8Match[1])}&referer=${encodeURIComponent("https://hdtodayz.to/")}`, server: server.name, totalServers: servers.length, currentIndex: i });
                     }
                 }
                 return res.json({ type: "iframe", link: embedLink, server: server.name, totalServers: servers.length, currentIndex: i });
-            } catch { if (index !== undefined) break; }
+            } catch (err: any) {
+                console.error(`[Source] Server ${server.name} error:`, err.message);
+                if (index !== undefined) break;
+            }
         }
         return res.status(404).json({ error: "No playable source found" });
     } catch (error: any) {
+        console.error(`[Source] Fatal error:`, error.message);
         res.status(500).json({ error: "Failed to fetch source", message: error.message });
     }
 });
@@ -752,13 +765,17 @@ app.get("/api/stream", async (req, res) => {
 });
 
 app.get("/api/secure-iframe", async (req, res) => {
-    const { url } = req.query;
+    const { url, referer } = req.query;
     if (!url || typeof url !== "string") return res.status(400).send("URL required");
+
+    // Default referer for sports if not provided
+    const targetReferer = (referer as string) || "http://www.fawanews.sc/";
+
     try {
         const response = await axios.get(url, {
             headers: {
                 "User-Agent": "Mozilla/5.0",
-                "Referer": "http://www.fawanews.sc/"
+                "Referer": targetReferer
             }
         });
         let html = response.data;
