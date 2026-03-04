@@ -277,21 +277,38 @@ const App: React.FC = () => {
         if (data.type === "m3u8") {
           setStreamUrl(data.link);
         } else if (data.type === "iframe") {
-          setEmbedUrl(data.link);
+          // Fix Mixed Content: if we are on HTTPS and link is HTTP, use proxy
+          const isSecure = window.location.protocol === "https:";
+          if (isSecure && data.link.startsWith("http://") && !data.link.includes(window.location.hostname)) {
+            setEmbedUrl(`/api/secure-iframe?url=${encodeURIComponent(data.link)}`);
+          } else {
+            setEmbedUrl(data.link);
+          }
         } else {
-          // Fallback: embed the match page directly — the browser will render its JS player
-          console.warn("Stream API returned no link, falling back to direct embed:", match.url);
-          setEmbedUrl(match.url);
+          // Fallback
+          const link = match.url;
+          if (window.location.protocol === "https:" && link.startsWith("http://") && !link.includes(window.location.hostname)) {
+            setEmbedUrl(`/api/secure-iframe?url=${encodeURIComponent(link)}`);
+          } else {
+            setEmbedUrl(link);
+          }
         }
       } else {
-        // Fallback: embed the match page directly — the browser will render its JS player
-        console.warn("Stream API returned no link, falling back to direct embed:", match.url);
-        setEmbedUrl(match.url);
+        const link = match.url;
+        if (window.location.protocol === "https:" && link.startsWith("http://") && !link.includes(window.location.hostname)) {
+          setEmbedUrl(`/api/secure-iframe?url=${encodeURIComponent(link)}`);
+        } else {
+          setEmbedUrl(link);
+        }
       }
     } catch (error) {
       console.error("Error fetching stream, falling back to direct embed:", error);
-      // Even if the API call itself fails, try embedding the page directly
-      setEmbedUrl(match.url);
+      const link = match.url;
+      if (window.location.protocol === "https:" && link.startsWith("http://") && !link.includes(window.location.hostname)) {
+        setEmbedUrl(`/api/secure-iframe?url=${encodeURIComponent(link)}`);
+      } else {
+        setEmbedUrl(link);
+      }
     } finally {
       setFetchingStream(false);
     }
@@ -1226,7 +1243,7 @@ const FootballPlayer: React.FC = () => {
           }
         }}
       />
-      {/* Player Silhouette - Stylized Architectural Look */}
+      {/* Player Silhouette */}
       <motion.path
         d="M60,180 L80,140 L70,100 L90,60 L110,40 L130,60 L120,90 L140,130 L160,165"
         fill="none"
@@ -1234,14 +1251,13 @@ const FootballPlayer: React.FC = () => {
         strokeWidth="8"
         strokeLinecap="round"
         strokeLinejoin="round"
-        variants={{
-          animate: {
-            d: [
-              "M60,180 L80,140 L70,100 L90,60 L110,40 L130,60 L120,90 L140,130 L160,165",
-              "M60,180 L80,140 L70,100 L90,60 L110,40 L130,60 L120,90 L110,130 L90,160",
-              "M60,180 L80,140 L70,100 L90,60 L110,40 L130,60 L120,90 L140,130 L160,165"
-            ]
-          }
+        initial={{ d: "M60,180 L80,140 L70,100 L90,60 L110,40 L130,60 L120,90 L140,130 L160,165" }}
+        animate={{
+          d: [
+            "M60,180 L80,140 L70,100 L90,60 L110,40 L130,60 L120,90 L140,130 L160,165",
+            "M60,180 L80,140 L70,100 L90,60 L110,40 L130,60 L120,90 L110,130 L90,160",
+            "M60,180 L80,140 L70,100 L90,60 L110,40 L130,60 L120,90 L140,130 L160,165"
+          ]
         }}
         transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
       />
@@ -1274,6 +1290,7 @@ const SportsHeroAnimation: React.FC = () => {
         {/* Central Dynamic Circle */}
         <motion.circle
           cx="50" cy="50" r="30"
+          initial={{ r: 30, opacity: 0.1 }}
           stroke="rgba(59,130,246,0.1)" strokeWidth="0.1" fill="none"
           animate={{ r: [30, 32, 30], opacity: [0.1, 0.2, 0.1] }}
           transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}

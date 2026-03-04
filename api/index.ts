@@ -221,13 +221,22 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Path normalization for Vercel: if request starts with /api, strip it
+// so that app.get('/proxy') matches /api/proxy
+app.use((req, res, next) => {
+    if (req.url.startsWith('/api')) {
+        req.url = req.url.replace('/api', '');
+    }
+    next();
+});
+
 // Health check endpoint (no DB, no scraping)
-app.get('/api/health', (req, res) => {
+app.get('/health', (req, res) => {
     res.json({ status: 'ok', environment: IS_VERCEL ? 'vercel' : 'local' });
 });
 
 // Database test endpoint
-app.get('/api/test-db', async (req, res) => {
+app.get("/test-db", async (req, res) => {
     if (!IS_VERCEL) return res.json({ status: 'ok', message: 'Local storage used' });
     try {
         const { rows } = await sql`SELECT NOW()`;
@@ -247,7 +256,7 @@ if (!IS_VERCEL) {
 
 
 // API to fetch trending content
-app.get("/api/trending", async (req, res) => {
+app.get("/trending", async (req, res) => {
     try {
         const response = await axios.get("https://hdtodayz.to/home", {
             headers: {
@@ -285,7 +294,7 @@ app.get("/api/trending", async (req, res) => {
 // ---------------------------------------------------------
 // Sports Data — persistent caching
 // ---------------------------------------------------------
-app.get('/api/sports/standings/:league', async (req, res) => {
+app.get('/sports/standings/:league', async (req, res) => {
     const { league } = req.params;
     let data = await getSportsCache(league);
 
@@ -298,7 +307,7 @@ app.get('/api/sports/standings/:league', async (req, res) => {
     res.json(data.standings);
 });
 
-app.get('/api/sports/matches/:league', async (req, res) => {
+app.get('/sports/matches/:league', async (req, res) => {
     const { league } = req.params;
     let data = await getSportsCache(league);
 
@@ -311,7 +320,7 @@ app.get('/api/sports/matches/:league', async (req, res) => {
     res.json(data.matches);
 });
 
-app.get('/api/sports/results/:league', async (req, res) => {
+app.get('/sports/results/:league', async (req, res) => {
     const { league } = req.params;
     const { q } = req.query as { q?: string };
 
@@ -333,7 +342,7 @@ app.get('/api/sports/results/:league', async (req, res) => {
     res.json(results);
 });
 
-app.get('/api/sports/cache-status', async (_req, res) => {
+app.get('/sports/cache-status', async (_req, res) => {
     const status: any = {};
     for (const l of LEAGUES) {
         const data = await getSportsCache(l);
@@ -347,7 +356,7 @@ app.get('/api/sports/cache-status', async (_req, res) => {
 });
 
 // API to search content
-app.get("/api/search", async (req, res) => {
+app.get("/search", async (req, res) => {
     const { q } = req.query;
     if (!q) return res.json([]);
     try {
@@ -385,7 +394,7 @@ app.get("/api/search", async (req, res) => {
 });
 
 // API to fetch by genre
-app.get("/api/genre/:genre", async (req, res) => {
+app.get("/genre/:genre", async (req, res) => {
     const { genre } = req.params;
     const { type } = req.query; // 'movie' or 'tv'
 
@@ -449,7 +458,7 @@ app.get("/api/genre/:genre", async (req, res) => {
 });
 
 // API to fetch movies from hdtodayz.to - Prioritize latest released
-app.get("/api/movies", async (req, res) => {
+app.get("/movies", async (req, res) => {
     try {
         let response;
         try {
@@ -504,7 +513,7 @@ app.get("/api/movies", async (req, res) => {
 });
 
 // API to fetch TV shows from hdtodayz.to - Prioritize latest released
-app.get("/api/tv-shows", async (req, res) => {
+app.get("/tv-shows", async (req, res) => {
     try {
         let response;
         try {
@@ -561,7 +570,7 @@ app.get("/api/tv-shows", async (req, res) => {
 });
 
 // API to fetch details (seasons/episodes) for a TV show or movie
-app.get("/api/details", async (req, res) => {
+app.get("/details", async (req, res) => {
     const { url } = req.query;
     if (!url || typeof url !== "string") {
         return res.status(400).json({ error: "URL is required" });
@@ -645,7 +654,7 @@ app.get("/api/details", async (req, res) => {
     }
 });
 
-app.get("/api/source", async (req, res) => {
+app.get("/source", async (req, res) => {
     const { id, type, index } = req.query;
     if (!id) return res.status(400).json({ error: "ID is required" });
 
@@ -687,7 +696,7 @@ app.get("/api/source", async (req, res) => {
     }
 });
 
-app.get("/api/matches", async (req, res) => {
+app.get("/matches", async (req, res) => {
     try {
         const response = await axios.get("http://www.fawanews.sc/", { headers: { "User-Agent": "Mozilla/5.0" }, timeout: 12000 });
         const $ = cheerio.load(response.data);
@@ -711,7 +720,7 @@ app.get("/api/matches", async (req, res) => {
     }
 });
 
-app.get("/api/stream", async (req, res) => {
+app.get("/stream", async (req, res) => {
     const { url } = req.query;
     if (!url || typeof url !== "string") return res.status(400).json({ error: "URL is required" });
     try {
@@ -741,7 +750,32 @@ app.get("/api/stream", async (req, res) => {
     }
 });
 
-app.get("/api/proxy", async (req, res) => {
+app.get("/secure-iframe", async (req, res) => {
+    const { url } = req.query;
+    if (!url || typeof url !== "string") return res.status(400).send("URL required");
+    try {
+        const response = await axios.get(url, {
+            headers: {
+                "User-Agent": "Mozilla/5.0",
+                "Referer": "http://www.fawanews.sc/"
+            }
+        });
+        let html = response.data;
+        // Inject <base> tag to resolve relative assets on the original host
+        const baseTag = `<base href="${url}">`;
+        if (html.includes("<head>")) {
+            html = html.replace("<head>", `<head>${baseTag}`);
+        } else {
+            html = baseTag + html;
+        }
+        res.setHeader("Content-Type", "text/html");
+        res.send(html);
+    } catch (e: any) {
+        res.status(500).send(`Failed to proxy iframe: ${e.message}`);
+    }
+});
+
+app.get("/proxy", async (req, res) => {
     const { url } = req.query;
     if (!url || typeof url !== "string") return res.status(400).send("URL is required");
     try {
