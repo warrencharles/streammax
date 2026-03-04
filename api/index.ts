@@ -471,11 +471,20 @@ app.get("/api/movies", async (req, res) => {
             });
         } catch (e) {
             console.log("[Movies] Filter failed, falling back to home trending");
-            response = await axios.get("https://hdtodayz.to/home", {
-                headers: {
-                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-                }
-            });
+            try {
+                response = await axios.get("https://hdtodayz.to/home", {
+                    headers: {
+                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+                    }
+                });
+            } catch (e2) {
+                console.error("[Movies] Both filter and home fallback failed");
+            }
+        }
+
+        if (!response || !response.data) {
+            console.error("[Movies] Failed to get any movie data");
+            return res.json([]);
         }
 
         const $ = cheerio.load(response.data);
@@ -527,12 +536,21 @@ app.get("/api/tv-shows", async (req, res) => {
             });
         } catch (e: any) {
             console.log(`[TV] Filter failed: ${e.message}, falling back to home trending`);
-            response = await axios.get("https://hdtodayz.to/home", {
-                headers: {
-                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-                },
-                timeout: 10000
-            });
+            try {
+                response = await axios.get("https://hdtodayz.to/home", {
+                    headers: {
+                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+                    },
+                    timeout: 10000
+                });
+            } catch (e2) {
+                console.error("[TV] Both filter and home fallback failed");
+            }
+        }
+
+        if (!response || !response.data) {
+            console.error("[TV] Failed to get any TV data");
+            return res.json([]);
         }
 
         const $ = cheerio.load(response.data);

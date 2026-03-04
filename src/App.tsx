@@ -347,6 +347,13 @@ const App: React.FC = () => {
   };
 
   const handleEpisodeClick = async (id: string, type: string = "tv", index: number = 0) => {
+    // Guard against multiple simultaneous triggers for the same episode/server
+    // especially from the watchdog.
+    if (fetchingStream && index === serverIndex && id === (itemDetails?.id || selectedItem?.id)) {
+      console.log("[Frontend] Skipping redundant handleEpisodeClick");
+      return;
+    }
+
     setFetchingStream(true);
     if (index > 0) setIsSwitchingServer(true);
     setEmbedUrl(null);
@@ -355,11 +362,10 @@ const App: React.FC = () => {
 
     const isHttps = window.location.protocol === "https:";
     const getSecureUrl = (url: string) => {
-      // For movie servers like UpCloud/MegaCloud/RabbitStream, they are usually HTTPS.
-      // Proxying them can often break their internal scripts.
-      // Only proxy if it's Mixed Content (HTTP on HTTPS).
-      if (isHttps && url.startsWith("http://") && !url.includes(window.location.hostname)) {
-        console.log("[Movies] Mixed Content detected, proxying:", url);
+      // ALWAYS proxy movie embeds on HTTPS to spoof the referer, 
+      // otherwise servers like MegaCloud/UpCloud return "File Not Found".
+      if (isHttps && !url.includes(window.location.hostname)) {
+        console.log("[Movies] Proxying embed to spoof Referer:", url);
         return `/api/secure-iframe?url=${encodeURIComponent(url)}&referer=${encodeURIComponent("https://hdtodayz.to/")}`;
       }
       return url;
