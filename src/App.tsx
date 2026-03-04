@@ -347,9 +347,9 @@ const App: React.FC = () => {
   };
 
   const handleEpisodeClick = async (id: string, type: string = "tv", index: number = 0) => {
-    // Guard against multiple simultaneous triggers for the same episode/server
-    // especially from the watchdog.
-    if (fetchingStream && index === serverIndex && id === (itemDetails?.id || selectedItem?.id)) {
+    // Only block if we already have a stream or embed URL for this server index.
+    // This allows the initial fetch (where urls are null) but stops redundant triggers.
+    if (fetchingStream && index === serverIndex && (streamUrl || embedUrl)) {
       console.log("[Frontend] Skipping redundant handleEpisodeClick");
       return;
     }

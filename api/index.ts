@@ -708,11 +708,20 @@ app.get("/api/source", async (req, res) => {
                 console.log(`[Source] Server ${server.name} returned embed: ${embedLink}`);
 
                 if (embedLink.includes("videostr.net") || embedLink.includes("rabbitstream.net") || embedLink.includes("megacloud.tv") || embedLink.includes("upcloud")) {
+                    console.log(`[Source] Detected HLS-capable server: ${server.name}. Attempting to extract M3U8...`);
                     const embedPage = await axios.get(embedLink, { headers: { "User-Agent": "Mozilla/5.0", "Referer": "https://hdtodayz.to/" }, timeout: 8000 });
-                    const m3u8Match = embedPage.data.match(/["'](https?:\/\/[^"']+\.m3u8[^"']*)["']/i);
+                    // Improved regex to handle escaped slashes and common patterns
+                    const m3u8Regex = /["'](https?:\/\/[^"']+\.m3u8[^"']*)["']|["'](https?(?::|\\:)(?:\/|\\\/)(?:\/|\\\/)[^"']+\.m3u8[^"']*)["']/i;
+                    const m3u8Match = embedPage.data.match(m3u8Regex);
                     if (m3u8Match) {
-                        console.log(`[Source] Found M3U8 in embed: ${m3u8Match[1]}`);
-                        return res.json({ type: "m3u8", link: `/api/proxy?url=${encodeURIComponent(m3u8Match[1])}&referer=${encodeURIComponent("https://hdtodayz.to/")}`, server: server.name, totalServers: servers.length, currentIndex: i });
+                        let m3u8Url = m3u8Match[1] || m3u8Match[2];
+                        if (m3u8Url) {
+                            m3u8Url = m3u8Url.replace(/\\/g, ""); // Clean up escaped slashes
+                            console.log(`[Source] Found M3U8 in embed: ${m3u8Url}`);
+                            return res.json({ type: "m3u8", link: `/api/proxy?url=${encodeURIComponent(m3u8Url)}&referer=${encodeURIComponent("https://hdtodayz.to/")}`, server: server.name, totalServers: servers.length, currentIndex: i });
+                        }
+                    } else {
+                        console.log(`[Source] No M3U8 regex match in server ${server.name} HTML`);
                     }
                 }
                 return res.json({ type: "iframe", link: embedLink, server: server.name, totalServers: servers.length, currentIndex: i });
@@ -820,8 +829,12 @@ app.get("/api/proxy", async (req, res) => {
         if (!req.query.referer) {
             if (url.includes("videostr.net") || url.includes("rabbitstream.net") || url.includes("megacloud.tv") || url.includes("upcloud") || url.includes("hdtoday")) referer = "https://hdtodayz.to/";
         }
+        console.log(`[Proxy] Fetching: ${url.substring(0, 100)}... | Referer: ${referer}`);
         const response = await axios.get(url, { headers: { "User-Agent": "Mozilla/5.0", "Referer": referer }, responseType: isM3U8 ? "text" : "stream", timeout: 15000, validateStatus: () => true });
-        if (response.status >= 400) return res.status(response.status).send(`Remote server error: ${response.status}`);
+        if (response.status >= 400) {
+            console.error(`[Proxy] Remote server error ${response.status} for ${url.substring(0, 100)}`);
+            return res.status(response.status).send(`Remote server error: ${response.status}`);
+        }
         res.setHeader("Access-Control-Allow-Origin", "*");
         res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
         res.setHeader("Access-Control-Allow-Headers", "*");
