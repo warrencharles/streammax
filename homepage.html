@@ -1,0 +1,176 @@
+
+<html>
+    <head>
+        <script defer data-domain="football-data.org" src="https://plausible.io/js/plausible.js"></script>
+
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+        <title>football-data.org - ur src for machine readable football data</title>
+        <meta name="keywords" content="api, football, soccer, statistics, rest, rest-api, restful, api, results, footballresult, soccerresult, json"/>
+        <meta name="description" content="A restful API for football data"/>
+        <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
+
+        <link rel="apple-touch-icon" sizes="57x57" href="/assets/favicons/apple-icon-57x57.png">
+        <link rel="apple-touch-icon" sizes="60x60" href="/assets/favicons/apple-icon-60x60.png">
+        <link rel="apple-touch-icon" sizes="72x72" href="/assets/favicons/apple-icon-72x72.png">
+        <link rel="apple-touch-icon" sizes="76x76" href="/assets/favicons/apple-icon-76x76.png">
+        <link rel="apple-touch-icon" sizes="114x114" href="/assets/favicons/apple-icon-114x114.png">
+        <link rel="apple-touch-icon" sizes="120x120" href="/assets/favicons/apple-icon-120x120.png">
+        <link rel="apple-touch-icon" sizes="144x144" href="/assets/favicons/apple-icon-144x144.png">
+        <link rel="apple-touch-icon" sizes="152x152" href="/assets/favicons/apple-icon-152x152.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicons/apple-icon-180x180.png">
+        <link rel="icon" type="image/png" sizes="192x192"  href="/assets/favicons/android-icon-192x192.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicons/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="96x96" href="/assets/favicons/favicon-96x96.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicons/favicon-16x16.png">
+        <link rel="manifest" href="/assets/favicons/manifest.json">
+                
+        <meta name="msapplication-TileColor" content="#ffffff">
+        <meta name="msapplication-TileImage" content="/assets/favicons/ms-icon-144x144.png">
+        <meta name="theme-color" content="#ffffff">
+        <link rel="stylesheet" href="/assets/bootstrap.min-92af3981f10606ab3532f7ab30c68c52.css" />
+        <link rel="stylesheet" href="/assets/style-f8cf7448205eaed9ca8612143710a6e1.css" />
+        <link rel="stylesheet" href="/assets/mobile-5cd987714c38f38c314f6328a49b0041.css" />
+   
+        
+        
+            <link rel="stylesheet" href="/assets/main-e239b5eb63179ba94afb1ece9ee4aaba.css" />
+            <script type="module" src="/assets/main.js"></script>
+        
+        
+        <script type="text/javascript" src="/assets/jquery-3.3.1.min-316f4a4b08cacb4a8bcc0861d9dcd1d5.js" ></script>
+        <script type="text/javascript" src="/assets/jquery-ui.min-a102d63ca90aa3b85424cd8a5a8cdb73.js" ></script>
+        <script type="text/javascript" src="/assets/modernizr-3352865027b8ec0d681ccbc484d287e3.js" ></script>
+        <script src="https://js.chargebee.com/v2/chargebee.js"></script>
+
+        
+    <meta name="layout" content="web"/>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/webstomp-client@1.2.6/dist/webstomp.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@5.0.0/bundles/stomp.umd.min.js"></script>
+    
+
+    </head>
+    <body class="js-preload-me home">
+        <div class="page js-page">
+            <div class="header large">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-2 col-sm-6 col-xs-6">
+                            <a href="https://www.football-data.org" class="logo-image">
+                                  <img src="/assets/logo.jpg" alt="football-data.org - a RESTful, reliable and free football data API" />
+                            </a>
+                        </div>
+                        <div class="col-md-10 col-sm-6 col-xs-6">
+                            <nav class="right helper">
+<ul class="menu sf-menu js-menu menu-light">
+    <li>
+        <a href="https://www.football-data.org/coverage">Football Coverage
+        </a>
+    </li>
+    <li>
+        <a href="https://www.football-data.org/pricing">Pricing</a>
+    </li>
+    <li>
+        <a href="https://www.football-data.org/documentation/quickstart" class="sf-with-ul-prepare">Documentation</a> 
+    </li>
+    <li>
+        <a href="https://www.football-data.org/blog">Blog</a>
+    </li>
+    <li>
+        <a href="https://www.football-data.org/about">About me</a>
+    </li>
+    
+        <li class="menu-login">
+            <a href="https://www.football-data.org/client/login">Sign in</a>
+        </li>
+        <li class="menu-register">
+            <a href="https://www.football-data.org/client/register" class="button green">
+                Get started
+                <i class="fa fa-angle-right"></i>
+            </a>
+        </li>
+    
+</ul>
+</nav>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            
+
+<div class="header-back header-back-simple header-back-home">
+    <div class="header-back-container">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="page-info helper center">
+                        <h1 class="page-title">The dev-friendly football API</h1>
+                        <h2 class="page-description">RESTful. Reliable. Free to use. Easy to integrate.</h2>
+                        
+                        <div id="scores_component"></div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+       
+    </div>
+</div>
+
+<div id="content">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-1"></div>
+            <div class="col-md-10">
+                <div class="box-description">
+                    <div class="helper mt40">
+                        <h3>Purpose of the project</h3>
+                        football-data.org provides football data and statistics (live scores, fixtures, tables, squads, lineups/subs, etc.)
+                        in a machine-readable way.
+                        <p>
+                        I won't announce how awesome football-data is, you're welcome to find out by yourself (or not).
+                        Access to the top competitions is and will be free forever as this was the initial purpose
+                        to setup the project.<br />
+                        However if you need more competitions or in-depth data there are several paid plans available to
+                        serve your needs. If you need historical data, more requests or something out of the box just 
+                        drop me a line, I'm glad to help.
+                        <p>
+                        <a href="./about">Read more...</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-1"></div>
+        </div>
+    </div>
+</div>
+
+
+            <footer class="js-footer-is-fixed">
+    <!-- Footer Extended -->
+    <div class="footer-extended">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="footer-extended-container">
+                        <div class="helper center">
+                            <strong>Questions?</strong>
+                            Drop me a line to
+                            <a href="mailto:daniel@football-data.org">daniel@football-data.org</a>
+                            <br/>
+                            <a href="http://football-data.org">football-data.org</a>, Copyright © 2014-2026
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End of Footer Default -->
+</footer>
+
+        </div>
+        <script type="text/javascript" src="/assets/all-e4ad1110a7170b29daf6295b1f003eac.js" ></script>
+        <script type="text/javascript" src="/assets/bootstrap.min-87721e3c29de9056afe66679a29008c8.js" ></script>
+    </body>
+</html>

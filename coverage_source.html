@@ -1,0 +1,3999 @@
+
+<html>
+    <head>
+        <script defer data-domain="football-data.org" src="https://plausible.io/js/plausible.js"></script>
+
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+        <title>football-data.org - Coverage</title>
+        <meta name="keywords" content="api, football, soccer, statistics, rest, rest-api, restful, api, results, footballresult, soccerresult, json"/>
+        <meta name="description" content="A restful API for football data"/>
+        <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
+
+        <link rel="apple-touch-icon" sizes="57x57" href="/assets/favicons/apple-icon-57x57.png">
+        <link rel="apple-touch-icon" sizes="60x60" href="/assets/favicons/apple-icon-60x60.png">
+        <link rel="apple-touch-icon" sizes="72x72" href="/assets/favicons/apple-icon-72x72.png">
+        <link rel="apple-touch-icon" sizes="76x76" href="/assets/favicons/apple-icon-76x76.png">
+        <link rel="apple-touch-icon" sizes="114x114" href="/assets/favicons/apple-icon-114x114.png">
+        <link rel="apple-touch-icon" sizes="120x120" href="/assets/favicons/apple-icon-120x120.png">
+        <link rel="apple-touch-icon" sizes="144x144" href="/assets/favicons/apple-icon-144x144.png">
+        <link rel="apple-touch-icon" sizes="152x152" href="/assets/favicons/apple-icon-152x152.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicons/apple-icon-180x180.png">
+        <link rel="icon" type="image/png" sizes="192x192"  href="/assets/favicons/android-icon-192x192.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicons/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="96x96" href="/assets/favicons/favicon-96x96.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicons/favicon-16x16.png">
+        <link rel="manifest" href="/assets/favicons/manifest.json">
+                
+        <meta name="msapplication-TileColor" content="#ffffff">
+        <meta name="msapplication-TileImage" content="/assets/favicons/ms-icon-144x144.png">
+        <meta name="theme-color" content="#ffffff">
+        <link rel="stylesheet" href="/assets/bootstrap.min-92af3981f10606ab3532f7ab30c68c52.css" />
+        <link rel="stylesheet" href="/assets/style-f8cf7448205eaed9ca8612143710a6e1.css" />
+        <link rel="stylesheet" href="/assets/mobile-5cd987714c38f38c314f6328a49b0041.css" />
+   
+        
+        
+            <link rel="stylesheet" href="/assets/main-e239b5eb63179ba94afb1ece9ee4aaba.css" />
+            <script type="module" src="/assets/main.js"></script>
+        
+        
+        <script type="text/javascript" src="/assets/jquery-3.3.1.min-316f4a4b08cacb4a8bcc0861d9dcd1d5.js" ></script>
+        <script type="text/javascript" src="/assets/jquery-ui.min-a102d63ca90aa3b85424cd8a5a8cdb73.js" ></script>
+        <script type="text/javascript" src="/assets/modernizr-3352865027b8ec0d681ccbc484d287e3.js" ></script>
+        <script src="https://js.chargebee.com/v2/chargebee.js"></script>
+
+        
+        <meta name="layout" content="web"/>
+        
+        
+    
+    </head>
+    <body class="js-preload-me coverage">
+        <div class="page js-page">
+            <div class="header large">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-2 col-sm-6 col-xs-6">
+                            <a href="https://www.football-data.org" class="logo-image">
+                                  <img src="/assets/logo.jpg" alt="football-data.org - a RESTful, reliable and free football data API" />
+                            </a>
+                        </div>
+                        <div class="col-md-10 col-sm-6 col-xs-6">
+                            <nav class="right helper">
+<ul class="menu sf-menu js-menu menu-light">
+    <li class="current">
+        <a href="https://www.football-data.org/coverage">Football Coverage
+        </a>
+    </li>
+    <li>
+        <a href="https://www.football-data.org/pricing">Pricing</a>
+    </li>
+    <li>
+        <a href="https://www.football-data.org/documentation/quickstart" class="sf-with-ul-prepare">Documentation</a> 
+    </li>
+    <li>
+        <a href="https://www.football-data.org/blog">Blog</a>
+    </li>
+    <li>
+        <a href="https://www.football-data.org/about">About me</a>
+    </li>
+    
+        <li class="menu-login">
+            <a href="https://www.football-data.org/client/login">Sign in</a>
+        </li>
+        <li class="menu-register">
+            <a href="https://www.football-data.org/client/register" class="button green">
+                Get started
+                <i class="fa fa-angle-right"></i>
+            </a>
+        </li>
+    
+</ul>
+</nav>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            
+        <div class="header-back header-back-simple header-back-small">
+    <div class="header-back-container">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="page-info">
+                        <h1 class="page-title">Football coverage</h1>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+        <div id="content">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="box-description">
+                            <h3 class="promo-title">Free Tier</h3>
+                            <p class="promo-description">Access to data of these leagues & cups is free. Forever.
+                            <br />
+                            Click each box to see the API data in action.
+                        <ul class="brands ">
+                            <li class="brand-item">
+                                <div onclick="window.open('https://native-stats.org/competition/CL/');" style="cursor: pointer;" class="brand-item-link">
+                                    <div class="brand-item-image" style="background-image:url(/assets/logo_cl.png)"></div>
+                                    <div class="brand-item-footer helper center">
+                                        <div class="brand-item-name">Champions League</div>
+                                        <div class="brand-item-type">Europe</div>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="brand-item">
+                                <div onclick="window.open('https://native-stats.org/competition/PPL/');" style="cursor: pointer;" class="brand-item-link">
+                                    <div class="brand-item-image" style="background-image:url(/assets/portugueseprimeradivision.png)"></div>
+                                    <div class="brand-item-footer helper center">
+                                        <div class="brand-item-name">Primeira Liga</div>
+                                        <div class="brand-item-type">Portugal</div>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="brand-item">
+                                <div onclick="window.open('https://native-stats.org/competition/PL/');" style="cursor: pointer;" class="brand-item-link">
+                                    <div class="brand-item-image" style="background-image:url(/assets/logo_premier_league.png)"></div>
+                                    <div class="brand-item-footer helper center">
+                                        <div class="brand-item-name">Premier League</div>
+                                        <div class="brand-item-type">England</div>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="brand-item">
+                                <div onclick="window.open('https://native-stats.org/competition/DED/');" style="cursor: pointer;" class="brand-item-link">
+                                    <div class="brand-item-image" style="background-image:url(/assets/logo_eredivisie.png)"></div>
+                                    <div class="brand-item-footer helper center">
+                                        <div class="brand-item-name">Eredivisie</div>
+                                        <div class="brand-item-type">Netherlands</div>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="brand-item">
+                                <div onclick="window.open('https://native-stats.org/competition/BL1/');" style="cursor: pointer;" class="brand-item-link">
+                                    <div class="brand-item-image" style="background-image:url(/assets/logo_bundesliga.png)"></div>
+                                    <div class="brand-item-footer helper center">
+                                        <div class="brand-item-name">Bundesliga</div>
+                                        <div class="brand-item-type">Germany</div>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="brand-item">
+                                <div onclick="window.open('https://native-stats.org/competition/FL1/');" style="cursor: pointer;" class="brand-item-link">
+                                    <div class="brand-item-image" style="background-image:url(/assets/logo_ligue_1.png)"></div>
+                                    <div class="brand-item-footer helper center">
+                                        <div class="brand-item-name">Ligue 1</div>
+                                        <div class="brand-item-type">France</div>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="brand-item">
+                                <div onclick="window.open('https://native-stats.org/competition/SA/');" style="cursor: pointer;" class="brand-item-link">
+                                    <div class="brand-item-image" style="background-image:url(/assets/logo_serie_a.png)"></div>
+                                    <div class="brand-item-footer helper center">
+                                        <div class="brand-item-name">Serie A</div>
+                                        <div class="brand-item-type">Italy</div>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="brand-item">
+                                <div onclick="window.open('https://native-stats.org/competition/PD/');" style="cursor: pointer;" class="brand-item-link">
+                                    <div class="brand-item-image" style="background-image:url(/assets/logo_laliga.png)"></div>
+                                    <div class="brand-item-footer helper center">
+                                        <div class="brand-item-name">La Liga</div>
+                                        <div class="brand-item-type">Spain</div>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="brand-item">
+                                <div onclick="window.open('https://native-stats.org/competition/ELC/');" style="cursor: pointer;" class="brand-item-link">
+                                    <div class="brand-item-image" style="background-image:url(/assets/championship.png)"></div>
+                                    <div class="brand-item-footer helper center">
+                                        <div class="brand-item-name">Championship</div>
+                                        <div class="brand-item-type">England</div>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="brand-item">
+                                <div onclick="window.open('https://native-stats.org/competition/BSA/');" style="cursor: pointer;" class="brand-item-link">
+                                    <div class="brand-item-image" style="background-image:url(/assets/logo_brazil_serie_a.png)"></div>
+                                    <div class="brand-item-footer helper center">
+                                        <div class="brand-item-name">Serie A</div>
+                                        <div class="brand-item-type">Brazil</div>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="brand-item">
+                                <div onclick="window.open('https://native-stats.org/competition/WC/');" style="cursor: pointer;" class="brand-item-link">
+                                    <div class="brand-item-image" style="background-image:url(https://crests.football-data.org/qatar.png)"></div>
+                                    <div class="brand-item-footer helper center">
+                                        <div class="brand-item-name">Worldcup</div>
+                                        <div class="brand-item-type">World</div>
+                                    </div>
+                                </div>
+                            </li>
+                            <li class="brand-item">
+                                <div onclick="window.open('https://native-stats.org/competition/EC/');" style="cursor: pointer;" class="brand-item-link">
+                                    <div class="brand-item-image" style="background-image:url(/assets/logo-euro_2020.svg)"></div>
+                                    <div class="brand-item-footer helper center">
+                                        <div class="brand-item-name">Europe</div>
+                                        <div class="brand-item-type">European Championships</div>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                        <div class="promo-title-wrapper ">
+                            <h3 class="promo-title">All competitions</h3>
+                            <p class="promo-description">Check the table below for all available leagues and cups</p>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Country</th>
+                                        <th>Name</th>
+                                        <th>Type</th>
+                                        <th>Odds</th>
+                                        <th>Stats</th>
+                                        <th class="helper center">Tier 1</th>
+                                        <th class="helper center">Tier 2</th>
+                                        <th class="helper center">Tier 3</th>
+                                        <th class="helper center">Tier 4</th>
+                                    </tr>
+                                    <tr>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th></th>
+                                        <th class="helper center">Free</th>
+                                        <th class="helper center">49 &euro;</th>
+                                        <th class="helper center">99 &euro;</th>
+                                        <th class="helper center">199 &euro;</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    
+                                        <tr>
+                                            <td>Africa</td>
+                                            <td>WC Qualification CAF</td>
+                                            <td>CUP</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Africa</td>
+                                            <td>Africa Cup</td>
+                                            <td>CUP</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Argentina</td>
+                                            <td>Liga Profesional</td>
+                                            <td>LEAGUE</td>
+
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Asia</td>
+                                            <td>WC Qualification AFC</td>
+                                            <td>CUP</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Australia</td>
+                                            <td>A League</td>
+                                            <td>LEAGUE</td>
+
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Austria</td>
+                                            <td>Bundesliga</td>
+                                            <td>LEAGUE</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Austria</td>
+                                            <td>Erste Liga</td>
+                                            <td>LEAGUE</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Belgium</td>
+                                            <td>Playoffs</td>
+                                            <td>PLAYOFFS</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Belgium</td>
+                                            <td>Supercoupe de Belgique</td>
+                                            <td>SUPER_CUP</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Belgium</td>
+                                            <td>Jupiler Pro League</td>
+                                            <td>LEAGUE</td>
+
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Brazil</td>
+                                            <td>Campeonato Brasileiro Série A</td>
+                                            <td>LEAGUE</td>
+
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Brazil</td>
+                                            <td>Campeonato Brasileiro Série B</td>
+                                            <td>LEAGUE</td>
+
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Brazil</td>
+                                            <td>Copa do Brasil</td>
+                                            <td>CUP</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Chile</td>
+                                            <td>Primera División</td>
+                                            <td>LEAGUE</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>China PR</td>
+                                            <td>Chinese Super League</td>
+                                            <td>LEAGUE</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Colombia</td>
+                                            <td>Liga Postobón</td>
+                                            <td>LEAGUE</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Denmark</td>
+                                            <td>Superliga</td>
+                                            <td>LEAGUE</td>
+
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>England</td>
+                                            <td>Premier League</td>
+                                            <td>LEAGUE</td>
+
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>England</td>
+                                            <td>Championship</td>
+                                            <td>LEAGUE</td>
+
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>England</td>
+                                            <td>League One</td>
+                                            <td>LEAGUE</td>
+
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>England</td>
+                                            <td>League Two</td>
+                                            <td>LEAGUE</td>
+
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>England</td>
+                                            <td>National League</td>
+                                            <td>LEAGUE</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>England</td>
+                                            <td>FA Cup</td>
+                                            <td>CUP</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>England</td>
+                                            <td>FA Community Shield</td>
+                                            <td>SUPER_CUP</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>England</td>
+                                            <td>Football League Cup</td>
+                                            <td>CUP</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Europe</td>
+                                            <td>UEFA Nations League</td>
+                                            <td>CUP</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Europe</td>
+                                            <td>UEFA Super Cup</td>
+                                            <td>CUP</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Europe</td>
+                                            <td>Champions League Qualification</td>
+                                            <td>CUP</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Europe</td>
+                                            <td>Conference League Qualification</td>
+                                            <td>CUP</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Europe</td>
+                                            <td>WC Qualification UEFA</td>
+                                            <td>CUP</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Europe</td>
+                                            <td>European Championship Qualifiers</td>
+                                            <td>CUP</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Europe</td>
+                                            <td>UEFA Women&#39;s Euro</td>
+                                            <td>CUP</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Europe</td>
+                                            <td>UEFA Conference League</td>
+                                            <td>CUP</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Europe</td>
+                                            <td>European Championship</td>
+                                            <td>CUP</td>
+
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Europe</td>
+                                            <td>UEFA Champions League</td>
+                                            <td>CUP</td>
+
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Europe</td>
+                                            <td>UEFA Europa League</td>
+                                            <td>CUP</td>
+
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Finland</td>
+                                            <td>Veikkausliiga</td>
+                                            <td>LEAGUE</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>France</td>
+                                            <td>Playoffs 1/2</td>
+                                            <td>PLAYOFFS</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>France</td>
+                                            <td>Ligue 1</td>
+                                            <td>LEAGUE</td>
+
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>France</td>
+                                            <td>Ligue 2</td>
+                                            <td>LEAGUE</td>
+
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Germany</td>
+                                            <td>Regionalliga Nordost</td>
+                                            <td>LEAGUE</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Germany</td>
+                                            <td>Regionalliga Nord</td>
+                                            <td>LEAGUE</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Germany</td>
+                                            <td>DFL Super Cup</td>
+                                            <td>SUPER_CUP</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Germany</td>
+                                            <td>Relegation</td>
+                                            <td>CUP</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Germany</td>
+                                            <td>Regionalliga Bayern</td>
+                                            <td>LEAGUE</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Germany</td>
+                                            <td>Regionalliga West</td>
+                                            <td>LEAGUE</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Germany</td>
+                                            <td>Regionalliga Südwest</td>
+                                            <td>LEAGUE</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Germany</td>
+                                            <td>Bundesliga</td>
+                                            <td>LEAGUE</td>
+
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Germany</td>
+                                            <td>2. Bundesliga</td>
+                                            <td>LEAGUE</td>
+
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Germany</td>
+                                            <td>3. Bundesliga</td>
+                                            <td>LEAGUE</td>
+
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Germany</td>
+                                            <td>Regionalliga</td>
+                                            <td>LEAGUE</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Germany</td>
+                                            <td>DFB-Pokal</td>
+                                            <td>CUP</td>
+
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Greece</td>
+                                            <td>Super League</td>
+                                            <td>LEAGUE</td>
+
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Hungary</td>
+                                            <td>NB I</td>
+                                            <td>LEAGUE</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Italy</td>
+                                            <td>Serie C - Girone A</td>
+                                            <td>LEAGUE</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Italy</td>
+                                            <td>Serie C - Girone B</td>
+                                            <td>LEAGUE</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Italy</td>
+                                            <td>Serie C - Girone C</td>
+                                            <td>LEAGUE</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Italy</td>
+                                            <td>Playoffs 1/2</td>
+                                            <td>SUPER_CUP</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Italy</td>
+                                            <td>Serie A</td>
+                                            <td>LEAGUE</td>
+
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Italy</td>
+                                            <td>Serie B</td>
+                                            <td>LEAGUE</td>
+
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Italy</td>
+                                            <td>Coppa Italia</td>
+                                            <td>CUP</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Italy</td>
+                                            <td>Supercoppa</td>
+                                            <td>SUPER_CUP</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Japan</td>
+                                            <td>J. League</td>
+                                            <td>LEAGUE</td>
+
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Mexico</td>
+                                            <td>Liga MX</td>
+                                            <td>LEAGUE</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Netherlands</td>
+                                            <td>Johan Cruijff Schaal</td>
+                                            <td>SUPER_CUP</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Netherlands</td>
+                                            <td>Eredivisie</td>
+                                            <td>LEAGUE</td>
+
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Netherlands</td>
+                                            <td>Eerste Divisie</td>
+                                            <td>LEAGUE</td>
+
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Netherlands</td>
+                                            <td>KNVB Beker</td>
+                                            <td>CUP</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Northern Ireland</td>
+                                            <td>Premiership</td>
+                                            <td>LEAGUE</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Norway</td>
+                                            <td>Tippeligaen</td>
+                                            <td>LEAGUE</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Peru</td>
+                                            <td>Primera División</td>
+                                            <td>LEAGUE</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Portugal</td>
+                                            <td>Supertaça Cândido de Oliveira</td>
+                                            <td>SUPER_CUP</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Portugal</td>
+                                            <td>Taça da Liga</td>
+                                            <td>CUP</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Portugal</td>
+                                            <td>Primeira Liga</td>
+                                            <td>LEAGUE</td>
+
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Portugal</td>
+                                            <td>Liga2 Cabovisão</td>
+                                            <td>LEAGUE</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Portugal</td>
+                                            <td>Taça de Portugal</td>
+                                            <td>CUP</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Romania</td>
+                                            <td>Liga I</td>
+                                            <td>LEAGUE</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Russia</td>
+                                            <td>RFPL</td>
+                                            <td>LEAGUE</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Scotland</td>
+                                            <td>Premier League</td>
+                                            <td>LEAGUE</td>
+
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Slovenia</td>
+                                            <td>PrvaLiga</td>
+                                            <td>LEAGUE</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>South America</td>
+                                            <td>WC Qualification CONMEBOL</td>
+                                            <td>CUP</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>South America</td>
+                                            <td>Copa Libertadores</td>
+                                            <td>CUP</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>South America</td>
+                                            <td>Copa Sudamericana</td>
+                                            <td>CUP</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>South America</td>
+                                            <td>Copa America</td>
+                                            <td>CUP</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Spain</td>
+                                            <td>La Liga Play-Offs</td>
+                                            <td>LEAGUE</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Spain</td>
+                                            <td>Supercopa de España</td>
+                                            <td>SUPER_CUP</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Spain</td>
+                                            <td>Primera Division</td>
+                                            <td>LEAGUE</td>
+
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Spain</td>
+                                            <td>Segunda División</td>
+                                            <td>LEAGUE</td>
+
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Spain</td>
+                                            <td>Copa del Rey</td>
+                                            <td>CUP</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Sweden</td>
+                                            <td>Allsvenskan</td>
+                                            <td>LEAGUE</td>
+
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Switzerland</td>
+                                            <td>Super League</td>
+                                            <td>LEAGUE</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Turkey</td>
+                                            <td>Süper Lig</td>
+                                            <td>LEAGUE</td>
+
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Turkey</td>
+                                            <td>1. Lig</td>
+                                            <td>LEAGUE</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Ukraine</td>
+                                            <td>Premier Liha</td>
+                                            <td>LEAGUE</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>United States</td>
+                                            <td>MLS</td>
+                                            <td>LEAGUE</td>
+
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Uruguay</td>
+                                            <td>Primera División</td>
+                                            <td>LEAGUE</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>Wales</td>
+                                            <td>Welsh Premier League</td>
+                                            <td>LEAGUE</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>World</td>
+                                            <td>FIFA Club World Cup</td>
+                                            <td>CUP</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>World</td>
+                                            <td>WC Qualification CONCACAF</td>
+                                            <td>CUP</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>World</td>
+                                            <td>FIFA Women&#39;s World Cup</td>
+                                            <td>CUP</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>World</td>
+                                            <td>Summer Olympics</td>
+                                            <td>CUP</td>
+
+                                            <td class="helper center">
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center"></td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                        <tr>
+                                            <td>World</td>
+                                            <td>FIFA World Cup</td>
+                                            <td>CUP</td>
+
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+                                        
+                                            <td class="helper center">
+                                            
+                                                    <i class="fa fa-check"></i>
+                                            
+                                            </td>
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                            
+                                                <td class="helper center">
+                                                    <i class="fa fa-check"></i>
+                                                </td>
+                                            
+
+                                        </tr>
+                                    
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- End of Brands -->
+                            </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+
+            <footer class="js-footer-is-fixed">
+    <!-- Footer Extended -->
+    <div class="footer-extended">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="footer-extended-container">
+                        <div class="helper center">
+                            <strong>Questions?</strong>
+                            Drop me a line to
+                            <a href="mailto:daniel@football-data.org">daniel@football-data.org</a>
+                            <br/>
+                            <a href="http://football-data.org">football-data.org</a>, Copyright © 2014-2026
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End of Footer Default -->
+</footer>
+
+        </div>
+        <script type="text/javascript" src="/assets/all-e4ad1110a7170b29daf6295b1f003eac.js" ></script>
+        <script type="text/javascript" src="/assets/bootstrap.min-87721e3c29de9056afe66679a29008c8.js" ></script>
+    </body>
+</html>

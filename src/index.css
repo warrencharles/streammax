@@ -1,16 +1,37 @@
 @import "tailwindcss";
 
+@layer base {
+  html {
+    scrollbar-gutter: stable;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background: #020617;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
 @layer components {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
   .glow-card {
     position: relative;
     background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.95) 100%);
-    border-radius: 24px;
-    /* Base border for structure */
+    border-radius: 20px;
     border: 1px solid rgba(255, 255, 255, 0.05);
     overflow: visible;
-    transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-    
-    /* Layered shadows for 3D depth and neon glow */
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
     box-shadow:
       inset 0 1px 1px rgba(255, 255, 255, 0.1),
       0 4px 6px -1px rgba(0, 0, 0, 0.2),
@@ -18,26 +39,42 @@
       0 24px 120px rgba(0, 140, 255, 0.08);
   }
 
+  /* Optimize hover for non-touch devices */
+  @media (hover: hover) {
+    .glow-card:hover {
+      transform: translateY(-8px) scale(1.02);
+      border-color: rgba(0, 140, 255, 0.4);
+      box-shadow:
+        inset 0 1px 2px rgba(255, 255, 255, 0.2),
+        0 30px 60px -12px rgba(0, 0, 0, 0.6),
+        0 0 20px rgba(0, 140, 255, 0.2);
+    }
+
+    .glow-card:hover::after {
+      opacity: 0;
+      transform: scaleX(0.4);
+      filter: blur(4px);
+    }
+  }
+
   /* High-end 3D Border Stroke */
   .glow-card::before {
     content: "";
     position: absolute;
-    inset: -1.5px; /* Slightly larger to sit outside */
+    inset: -1.5px;
     border-radius: inherit;
     padding: 1.5px;
-    background: linear-gradient(
-      135deg, 
-      rgba(255, 255, 255, 0.3) 0%, 
-      rgba(255, 255, 255, 0.05) 40%, 
-      rgba(0, 140, 255, 0.1) 60%, 
-      rgba(0, 140, 255, 0.5) 100%
-    );
+    background: linear-gradient(135deg,
+        rgba(255, 255, 255, 0.3) 0%,
+        rgba(255, 255, 255, 0.05) 40%,
+        rgba(0, 140, 255, 0.1) 60%,
+        rgba(0, 140, 255, 0.5) 100%);
     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;
     pointer-events: none;
-    z-index: 20; /* Higher than content */
+    z-index: 20;
   }
 
   /* Bottom Glow Aura */
@@ -46,46 +83,30 @@
     inset: 0;
     border-radius: inherit;
     background: radial-gradient(100% 100% at 50% 110%,
-      rgba(0, 140, 255, 0.25) 0%,
-      rgba(0, 140, 255, 0.1) 40%,
-      rgba(0, 0, 0, 0) 80%);
+        rgba(0, 140, 255, 0.2) 0%,
+        rgba(0, 140, 255, 0.05) 40%,
+        rgba(0, 0, 0, 0) 80%);
     pointer-events: none;
     z-index: 0;
     filter: blur(10px);
   }
 
-  /* thin blue line near bottom */
+  /* Thin blue line near bottom */
   .glow-card::after {
     content: "";
     position: absolute;
-    left: 12%;
-    right: 12%;
-    bottom: 12px;
-    height: 1.5px;
+    left: 15%;
+    right: 15%;
+    bottom: 10px;
+    height: 1px;
     border-radius: 999px;
-    background: linear-gradient(90deg, 
-      transparent 0%, 
-      rgba(0, 140, 255, 0.9) 50%, 
-      transparent 100%
-    );
-    box-shadow: 0 0 12px rgba(0, 140, 255, 1);
-    opacity: 0.85;
+    background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(0, 140, 255, 0.8) 50%,
+        transparent 100%);
+    box-shadow: 0 0 10px rgba(0, 140, 255, 0.8);
+    opacity: 0.6;
     z-index: 3;
     transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  .glow-card:hover {
-    transform: translateY(-10px) scale(1.02);
-    border-color: rgba(0, 140, 255, 0.4);
-    box-shadow:
-      inset 0 1px 2px rgba(255, 255, 255, 0.2),
-      0 30px 60px -12px rgba(0, 0, 0, 0.6),
-      0 0 20px rgba(0, 140, 255, 0.2);
-  }
-
-  .glow-card:hover::after {
-    opacity: 0;
-    transform: scaleX(0.4);
-    filter: blur(4px);
   }
 }
