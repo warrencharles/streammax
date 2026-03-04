@@ -273,6 +273,8 @@ const App: React.FC = () => {
 
     const isHttps = window.location.protocol === "https:";
     const getSecureUrl = (url: string, referer?: string) => {
+      // ONLY proxy if it's Mixed Content (HTTP on HTTPS)
+      // Sports streams often need this.
       if (isHttps && url.startsWith("http://") && !url.includes(window.location.hostname)) {
         console.log("[Sports] Mixed Content detected, using secure-iframe proxy for:", url);
         return `/api/secure-iframe?url=${encodeURIComponent(url)}${referer ? `&referer=${encodeURIComponent(referer)}` : ""}`;
@@ -353,9 +355,11 @@ const App: React.FC = () => {
 
     const isHttps = window.location.protocol === "https:";
     const getSecureUrl = (url: string) => {
-      // For movie servers like UpCloud/MegaCloud/RabbitStream, we ALWAYS need the hdtoday referrer
-      // And on Vercel (HTTPS), we use our proxy to spoof it.
-      if (isHttps && !url.includes(window.location.hostname)) {
+      // For movie servers like UpCloud/MegaCloud/RabbitStream, they are usually HTTPS.
+      // Proxying them can often break their internal scripts.
+      // Only proxy if it's Mixed Content (HTTP on HTTPS).
+      if (isHttps && url.startsWith("http://") && !url.includes(window.location.hostname)) {
+        console.log("[Movies] Mixed Content detected, proxying:", url);
         return `/api/secure-iframe?url=${encodeURIComponent(url)}&referer=${encodeURIComponent("https://hdtodayz.to/")}`;
       }
       return url;
@@ -1026,10 +1030,10 @@ const VideoPlayer: React.FC<{ url: string; title: string; onError?: (err: any) =
 
     playbackTimeoutRef.current = setTimeout(() => {
       if (!isPlaying && !isUnmounted.current) {
-        console.warn("[VideoPlayer] Playback watchdog triggered after 6s");
+        console.warn("[VideoPlayer] Playback watchdog triggered after 20s");
         onPlaybackFailed?.();
       }
-    }, 6000);
+    }, 20000); // Relaxed for Vercel buffering
 
     return () => {
       if (playbackTimeoutRef.current) clearTimeout(playbackTimeoutRef.current);
@@ -1669,7 +1673,7 @@ const IframeWatchdog: React.FC<{ onTimeout: () => void }> = ({ onTimeout }) => {
   useEffect(() => {
     const timer = setTimeout(() => {
       onTimeout();
-    }, 8000); // 8s for iframe as they take longer to spin up
+    }, 25000); // 25s for iframe as they take longer to spin up on Vercel
     return () => clearTimeout(timer);
   }, [onTimeout]);
   return null;
