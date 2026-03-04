@@ -3,27 +3,115 @@ import { createServer as createViteServer } from "vite";
 import axios from "axios";
 import * as cheerio from "cheerio";
 import cors from "cors";
+import { sql } from "@vercel/postgres";
+import fs from "fs";
+import path from "path";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Sports data in-memory cache
-// Populated at startup and refreshed every 30 minutes automatically.
+// Sports Data Persistence (Vercel Postgres + Local Fallback)
+// Ensures data persists even when the serverless function restarts.
 // ─────────────────────────────────────────────────────────────────────────────
 
 const LEAGUES = ['PL', 'CL', 'BL1', 'SA', 'PD', 'FL1'];
-const CACHE_REFRESH_MS = 30 * 60 * 1000; // 30 minutes
+const CACHE_REFRESH_MS = 5 * 60 * 1000; // 5 minutes
+const IS_VERCEL = process.env.VERCEL === '1';
+const LOCAL_CACHE_PATH = path.join(process.cwd(), 'sports-cache.json');
 
-const sportsCache: Record<string, {
+interface CachedLeagueData {
   standings: any[];
   matches: any[];
-  lastUpdated: Date | null;
-}> = {};
+  lastUpdated: string | null;
+}
 
-for (const league of LEAGUES) {
-  sportsCache[league] = { standings: [], matches: [], lastUpdated: null };
+// Global variable to hold app for exports
+let appInstance: any;
+
+async function getSportsCache(league: string): Promise<CachedLeagueData> {
+  if (IS_VERCEL) {
+    try {
+      const { rows } = await sql`SELECT data, updated_at FROM sports_cache WHERE league = ${league}`;
+      if (rows.length > 0) {
+        return {
+          ...JSON.parse(rows[0].data),
+          lastUpdated: rows[0].updated_at
+        };
+      }
+    } catch (e) {
+      console.error(`[DB] Read error (${league}):`, e);
+      // If table doesn't exist, create it once
+      try {
+        await sql`CREATE TABLE IF NOT EXISTS sports_cache (league TEXT PRIMARY KEY, data TEXT, updated_at TIMESTAMP)`;
+      } catch { }
+    }
+  } else if (fs.existsSync(LOCAL_CACHE_PATH)) {
+    try {
+      const all = JSON.parse(fs.readFileSync(LOCAL_CACHE_PATH, 'utf8'));
+      if (all[league]) return all[league];
+    } catch { }
+  }
+  return { standings: [], matches: [], lastUpdated: null };
+}
+
+async function setSportsCache(league: string, standings: any[], matches: any[]) {
+  const lastUpdated = new Date().toISOString();
+  const data = JSON.stringify({ standings, matches });
+
+  if (IS_VERCEL) {
+    try {
+      await sql`
+        INSERT INTO sports_cache (league, data, updated_at) 
+        VALUES (${league}, ${data}, ${lastUpdated})
+        ON CONFLICT (league) DO UPDATE SET data = EXCLUDED.data, updated_at = EXCLUDED.updated_at
+      `;
+    } catch (e) {
+      console.error(`[DB] Write error (${league}):`, e);
+    }
+  } else {
+    try {
+      let all: any = {};
+      if (fs.existsSync(LOCAL_CACHE_PATH)) all = JSON.parse(fs.readFileSync(LOCAL_CACHE_PATH, 'utf8'));
+      all[league] = { standings, matches, lastUpdated };
+      fs.writeFileSync(LOCAL_CACHE_PATH, JSON.stringify(all, null, 2));
+    } catch { }
+  }
 }
 
 // Shared UA and encoding helpers for sports scraping
 const SPORTS_UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
+
+async function updateLeagueData(league: string): Promise<CachedLeagueData> {
+  console.log(`[Sports] Fetching fresh data for ${league}...`);
+  try {
+    const fetchWithRetry = async (url: string, retries = 2): Promise<Buffer> => {
+      let lastErr: any;
+      for (let attempt = 0; attempt <= retries; attempt++) {
+        try {
+          const res = await axios.get(url, { responseType: 'arraybuffer', headers: { 'User-Agent': SPORTS_UA }, timeout: 15000 });
+          return Buffer.from(res.data);
+        } catch (err: any) {
+          lastErr = err;
+          if (attempt < retries) await new Promise(r => setTimeout(r, 2000));
+        }
+      }
+      throw lastErr;
+    };
+
+    const [standingsBuf, fixturesBuf] = await Promise.all([
+      fetchWithRetry(`https://native-stats.org/competition/${league}/`),
+      fetchWithRetry(`https://native-stats.org/competition/${league}/fixtures/`)
+    ]);
+
+    const standings = parseStandings(decodeSportsBuffer(standingsBuf));
+    const matches = parseMatches(decodeSportsBuffer(fixturesBuf));
+
+    await setSportsCache(league, standings, matches);
+    return { standings, matches, lastUpdated: new Date().toISOString() };
+  } catch (err: any) {
+    console.error(`[Sports] Update failed for ${league}:`, err.message);
+    const cached = await getSportsCache(league);
+    return cached;
+  }
+}
 
 function decodeSportsBuffer(buf: Buffer): string {
   const hasUtf16Bom = buf[0] === 0xff && buf[1] === 0xfe;
@@ -130,73 +218,20 @@ function parseMatches(html: string): any[] {
   return upcomingMatches;
 }
 
-async function fetchLeagueData(league: string, retries = 2): Promise<void> {
-  const fetchWithRetry = async (url: string): Promise<Buffer> => {
-    let lastErr: any;
-    for (let attempt = 0; attempt <= retries; attempt++) {
-      try {
-        const res = await axios.get(url, {
-          responseType: 'arraybuffer',
-          headers: { 'User-Agent': SPORTS_UA },
-          timeout: 15000
-        });
-        return Buffer.from(res.data);
-      } catch (err: any) {
-        lastErr = err;
-        if (attempt < retries) {
-          // Wait 3s before retrying
-          await new Promise(r => setTimeout(r, 3000));
-        }
-      }
-    }
-    throw lastErr;
-  };
-
-  try {
-    const [standingsBuf, fixturesBuf] = await Promise.all([
-      fetchWithRetry(`https://native-stats.org/competition/${league}/`),
-      fetchWithRetry(`https://native-stats.org/competition/${league}/fixtures/`)
-    ]);
-
-    const standingsHtml = decodeSportsBuffer(standingsBuf);
-    const fixturesHtml = decodeSportsBuffer(fixturesBuf);
-
-    const standings = parseStandings(standingsHtml);
-    const matches = parseMatches(fixturesHtml);
-
-    sportsCache[league] = {
-      standings,
-      matches,
-      lastUpdated: new Date()
-    };
-
-    console.log(`[Cache] ✓ ${league}: ${standings.length} standings, ${matches.length} fixtures`);
-  } catch (err: any) {
-    const prev = sportsCache[league]?.lastUpdated ? ` (keeping data from ${sportsCache[league].lastUpdated?.toISOString()})` : ' (no cached data)';
-    console.error(`[Cache] ✗ ${league} fetch failed: ${err.message}${prev}`);
-  }
-}
-
-async function refreshAllLeagues(): Promise<void> {
-  console.log('[Cache] Refreshing all league data...');
-  await Promise.allSettled(LEAGUES.map(l => fetchLeagueData(l)));
-  console.log('[Cache] Refresh complete.');
-}
-
 async function startServer() {
   const app = express();
+  appInstance = app;
   const PORT = 3000;
 
   app.use(cors());
   app.use(express.json());
 
-  // Kick off initial data fetch (non-blocking — server starts immediately)
-  refreshAllLeagues().catch(e => console.error('[Cache] Initial fetch error:', e));
-
-  // Auto-refresh every 30 minutes
-  setInterval(() => {
-    refreshAllLeagues().catch(e => console.error('[Cache] Auto-refresh error:', e));
-  }, CACHE_REFRESH_MS);
+  // Background refresh only if NOT on Vercel
+  if (!IS_VERCEL) {
+    const refreshAll = () => Promise.allSettled(LEAGUES.map(l => updateLeagueData(l)));
+    refreshAll();
+    setInterval(refreshAll, 60 * 60 * 1000); // 1 hour background sync for local
+  }
 
 
   // API to fetch trending content
@@ -236,60 +271,45 @@ async function startServer() {
   });
 
   // ---------------------------------------------------------
-  // Sports Data — served from in-memory cache
+  // Sports Data — persistent caching
   // ---------------------------------------------------------
   app.get('/api/sports/standings/:league', async (req, res) => {
     const { league } = req.params;
-    const cached = sportsCache[league];
+    let data = await getSportsCache(league);
 
-    // If cache is empty (e.g. very first request during startup), do a live fetch
-    if (!cached || (!cached.lastUpdated && cached.standings.length === 0)) {
-      try {
-        await fetchLeagueData(league);
-      } catch (e: any) {
-        return res.status(500).json({ error: 'Failed to fetch standings', message: e.message });
-      }
+    const isStale = !data.lastUpdated || (new Date().getTime() - new Date(data.lastUpdated).getTime()) > CACHE_REFRESH_MS;
+    if (isStale || data.standings.length === 0) {
+      data = await updateLeagueData(league);
     }
 
-    const data = sportsCache[league];
-    console.log(`[Sports] Serving ${league} standings from cache (${data.lastUpdated?.toISOString() ?? 'uncached'})`);
+    console.log(`[Sports] Serving ${league} standings (${data.lastUpdated})`);
     res.json(data.standings);
   });
 
   app.get('/api/sports/matches/:league', async (req, res) => {
     const { league } = req.params;
-    const cached = sportsCache[league];
+    let data = await getSportsCache(league);
 
-    // If cache is empty (e.g. very first request during startup), do a live fetch
-    if (!cached || (!cached.lastUpdated && cached.matches.length === 0)) {
-      try {
-        await fetchLeagueData(league);
-      } catch (e: any) {
-        return res.status(500).json({ error: 'Failed to fetch matches', message: e.message });
-      }
+    const isStale = !data.lastUpdated || (new Date().getTime() - new Date(data.lastUpdated).getTime()) > CACHE_REFRESH_MS;
+    if (isStale || data.matches.length === 0) {
+      data = await updateLeagueData(league);
     }
 
-    const data = sportsCache[league];
-    console.log(`[Sports] Serving ${league} fixtures from cache (${data.lastUpdated?.toISOString() ?? 'uncached'}): ${data.matches.length} matches`);
+    console.log(`[Sports] Serving ${league} matches (${data.lastUpdated})`);
     res.json(data.matches);
   });
 
-  // Search historical results — served from the standings page cache
   app.get('/api/sports/results/:league', async (req, res) => {
     const { league } = req.params;
     const { q } = req.query as { q?: string };
 
-    // We use the cached matches (which include 'finished' status) for results
-    const cached = sportsCache[league];
-    if (!cached || (!cached.lastUpdated && cached.matches.length === 0)) {
-      try {
-        await fetchLeagueData(league);
-      } catch (e: any) {
-        return res.status(500).json({ error: 'Failed to fetch results', message: e.message });
-      }
+    let data = await getSportsCache(league);
+    const isStale = !data.lastUpdated || (new Date().getTime() - new Date(data.lastUpdated).getTime()) > CACHE_REFRESH_MS;
+    if (isStale || data.matches.length === 0) {
+      data = await updateLeagueData(league);
     }
 
-    let results = (sportsCache[league]?.matches ?? []).filter((m: any) => m.status === 'finished');
+    let results = (data.matches ?? []).filter((m: any) => m.status === 'finished');
 
     if (q) {
       const query = (q as string).toLowerCase();
@@ -301,18 +321,16 @@ async function startServer() {
     res.json(results);
   });
 
-  // Cache status — useful for debugging: shows when each league was last fetched
-  app.get('/api/sports/cache-status', (_req, res) => {
-    const status = Object.fromEntries(
-      Object.entries(sportsCache).map(([league, data]) => [
-        league,
-        {
-          standings: data.standings.length,
-          matches: data.matches.length,
-          lastUpdated: data.lastUpdated?.toISOString() ?? 'never'
-        }
-      ])
-    );
+  app.get('/api/sports/cache-status', async (_req, res) => {
+    const status: any = {};
+    for (const l of LEAGUES) {
+      const data = await getSportsCache(l);
+      status[l] = {
+        standings: data.standings.length,
+        matches: data.matches.length,
+        lastUpdated: data.lastUpdated ?? 'never'
+      };
+    }
     res.json(status);
   });
 
@@ -1067,6 +1085,12 @@ async function startServer() {
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`Server running on http://localhost:${PORT}`);
   });
+
+  return app;
 }
 
-startServer();
+const appPromise = startServer();
+export default (async (req: any, res: any) => {
+  const app = await appPromise;
+  app(req, res);
+});
