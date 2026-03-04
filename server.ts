@@ -35,12 +35,15 @@ async function getSportsCache(league: string): Promise<CachedLeagueData> {
           lastUpdated: rows[0].updated_at
         };
       }
-    } catch (e) {
-      console.error(`[DB] Read error (${league}):`, e);
+    } catch (e: any) {
+      console.error(`[DB] Read error (${league}):`, e.message);
       // If table doesn't exist, create it once
       try {
+        console.log('[DB] Attempting to create sports_cache table...');
         await sql`CREATE TABLE IF NOT EXISTS sports_cache (league TEXT PRIMARY KEY, data TEXT, updated_at TIMESTAMP)`;
-      } catch { }
+      } catch (ce: any) {
+        console.error('[DB] Table creation failed:', ce.message);
+      }
     }
   } else if (fs.existsSync(LOCAL_CACHE_PATH)) {
     try {
@@ -224,6 +227,23 @@ async function startServer() {
 
   app.use(cors());
   app.use(express.json());
+
+  // Health check endpoint (no DB, no scraping)
+  app.get('/api/health', (req, res) => {
+    res.json({ status: 'ok', environment: IS_VERCEL ? 'vercel' : 'local' });
+  });
+
+  // Database test endpoint
+  app.get('/api/test-db', async (req, res) => {
+    if (!IS_VERCEL) return res.json({ status: 'ok', message: 'Local storage used' });
+    try {
+      const { rows } = await sql`SELECT NOW()`;
+      res.json({ status: 'ok', time: rows[0].now });
+    } catch (e: any) {
+      console.error('[Health] DB Test Error:', e.message);
+      res.status(500).json({ status: 'error', message: e.message });
+    }
+  });
 
   // Background refresh only if NOT on Vercel
   if (!IS_VERCEL) {
