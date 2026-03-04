@@ -270,45 +270,45 @@ const App: React.FC = () => {
     setFetchingStream(true);
     setStreamUrl(null);
     setEmbedUrl(null);
+
+    const isHttps = window.location.protocol === "https:";
+    const getSecureUrl = (url: string) => {
+      if (isHttps && url.startsWith("http://") && !url.includes(window.location.hostname)) {
+        console.log("[Sports] Mixed Content detected, using secure-iframe proxy for:", url);
+        return `/api/secure-iframe?url=${encodeURIComponent(url)}`;
+      }
+      return url;
+    };
+
+    console.log("[Sports] Handling match click:", match.title, match.url);
     try {
       const response = await fetch(`/api/stream?url=${encodeURIComponent(match.url)}`);
       const data = await response.json();
+      console.log("[Sports] Stream API response:", data);
+
       if (data.link) {
         if (data.type === "m3u8") {
+          console.log("[Sports] Using M3U8 stream:", data.link);
           setStreamUrl(data.link);
         } else if (data.type === "iframe") {
-          // Fix Mixed Content: if we are on HTTPS and link is HTTP, use proxy
-          const isSecure = window.location.protocol === "https:";
-          if (isSecure && data.link.startsWith("http://") && !data.link.includes(window.location.hostname)) {
-            setEmbedUrl(`/api/secure-iframe?url=${encodeURIComponent(data.link)}`);
-          } else {
-            setEmbedUrl(data.link);
-          }
+          const finalUrl = getSecureUrl(data.link);
+          console.log("[Sports] Using iframe embed:", finalUrl);
+          setEmbedUrl(finalUrl);
         } else {
           // Fallback
-          const link = match.url;
-          if (window.location.protocol === "https:" && link.startsWith("http://") && !link.includes(window.location.hostname)) {
-            setEmbedUrl(`/api/secure-iframe?url=${encodeURIComponent(link)}`);
-          } else {
-            setEmbedUrl(link);
-          }
+          const finalUrl = getSecureUrl(match.url);
+          console.log("[Sports] Fallback: using match URL directly:", finalUrl);
+          setEmbedUrl(finalUrl);
         }
       } else {
-        const link = match.url;
-        if (window.location.protocol === "https:" && link.startsWith("http://") && !link.includes(window.location.hostname)) {
-          setEmbedUrl(`/api/secure-iframe?url=${encodeURIComponent(link)}`);
-        } else {
-          setEmbedUrl(link);
-        }
+        const finalUrl = getSecureUrl(match.url);
+        console.log("[Sports] No link returned, using match URL directly:", finalUrl);
+        setEmbedUrl(finalUrl);
       }
     } catch (error) {
-      console.error("Error fetching stream, falling back to direct embed:", error);
-      const link = match.url;
-      if (window.location.protocol === "https:" && link.startsWith("http://") && !link.includes(window.location.hostname)) {
-        setEmbedUrl(`/api/secure-iframe?url=${encodeURIComponent(link)}`);
-      } else {
-        setEmbedUrl(link);
-      }
+      console.error("[Sports] Error fetching stream, falling back to direct embed:", error);
+      const finalUrl = getSecureUrl(match.url);
+      setEmbedUrl(finalUrl);
     } finally {
       setFetchingStream(false);
     }
