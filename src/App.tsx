@@ -329,8 +329,7 @@ const App: React.FC = () => {
           } else if (data.type === "iframe") {
             // CDN DASH .mpd URLs → go through secure-iframe (which injects dash.js player)
             // Prince TV watch URLs (without .mpd) → embed directly (no proxy, needs real browser)
-            const isCdnDash = data.link.includes(".mpd") || data.link.includes("azamtvltd") || data.link.includes("cdnedg");
-
+            
             let iframeQuery = `url=${encodeURIComponent(data.link)}&referer=${encodeURIComponent(defaultReferer)}`;
             // Pass clearKeys to secure-iframe DASH player if provided by the backend API
             if (data.clearKeys) {
@@ -338,7 +337,10 @@ const App: React.FC = () => {
                 iframeQuery += `&clearKeys=${encodeURIComponent(keysStr)}`;
             }
 
-            const finalUrl = isCdnDash
+            // Always use secure-iframe for streams with clearKeys, or known CDN domains
+            const needsShakaPlayer = !!data.clearKeys || data.link.includes(".mpd") || data.link.includes("azamtvltd") || data.link.includes("cdnedg");
+
+            const finalUrl = needsShakaPlayer
               ? `/api/secure-iframe?${iframeQuery}`
               : isPrinceTV
               ? data.link  // Direct embed (no proxy)

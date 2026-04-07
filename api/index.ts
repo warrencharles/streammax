@@ -953,6 +953,7 @@ app.get("/api/princetv-matches", async (req, res) => {
 
         const channelsData = await fetchTable("channels");
         const matches: any[] = [];
+        const existingIds = new Set<string>();
 
         channelsData.forEach((item: any) => {
             const title = item.title || item.name || "";
@@ -967,34 +968,34 @@ app.get("/api/princetv-matches", async (req, res) => {
                     url: url,
                     poster: poster
                 });
+                existingIds.add(channelId);
             }
         });
 
-        // Smart fallback to ensure the list is never empty
-        if (matches.length === 0) {
-            console.log("[Sports 2] No data from Supabase, applying static fallback...");
-            const fallbackChannels = [
-                { title: "Azam Sports 1", id: "628b250c-29df-42f2-9cb9-df637f1557db" },
-                { title: "Azam Sports 2", id: "98b50e2d-dc99-43ef-b387-052637738f61" },
-                { title: "Azam Sports 3", id: "74e1d5a7-bc99-43ef-b387-052637738f72" },
-                { title: "Azam Sports HD", id: "51c2e3a1-bc99-43ef-b387-052637738f83" },
-                { title: "beIN Sports 1", id: "be1n-sports-1-hd" },
-                { title: "beIN Sports 2", id: "be1n-sports-2-hd" },
-                { title: "beIN Sports 3", id: "be1n-sports-3-hd" },
-                { title: "SuperSport 1", id: "supersport-1-hd" },
-                { title: "SuperSport 2", id: "supersport-2-hd" },
-                { title: "SuperSport 3", id: "supersport-3-hd" }
-            ];
+        // Smart fallback to ensure the list is never empty, and missing standard channels are always injected
+        const fallbackChannels = [
+            { title: "Azam Sports 1", id: "628b250c-29df-42f2-9cb9-df637f1557db" },
+            { title: "Azam Sports 2", id: "98b50e2d-dc99-43ef-b387-052637738f61" },
+            { title: "Azam Sports 3", id: "74e1d5a7-bc99-43ef-b387-052637738f72" },
+            { title: "Azam Sports HD", id: "51c2e3a1-bc99-43ef-b387-052637738f83" },
+            { title: "beIN Sports 1", id: "be1n-sports-1-hd" },
+            { title: "beIN Sports 2", id: "be1n-sports-2-hd" },
+            { title: "beIN Sports 3", id: "be1n-sports-3-hd" },
+            { title: "SuperSport 1", id: "supersport-1-hd" },
+            { title: "SuperSport 2", id: "supersport-2-hd" },
+            { title: "SuperSport 3", id: "supersport-3-hd" }
+        ];
 
-            fallbackChannels.forEach(ch => {
+        fallbackChannels.forEach(ch => {
+            if (!existingIds.has(ch.id)) {
                 matches.push({
                     title: ch.title,
                     sport: "Sports 2",
                     url: `https://www.princetv.online/watch/${ch.id}`,
                     poster: `https://picsum.photos/seed/${ch.id}/400/225`
                 });
-            });
-        }
+            }
+        });
 
         const uniqueMatches = Array.from(new Map(matches.map(m => [m.url, m])).values());
         console.log(`[Sports 2] Loaded ${uniqueMatches.length} channels.`);
