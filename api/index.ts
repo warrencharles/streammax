@@ -761,11 +761,44 @@ app.get("/api/matches", async (req, res) => {
     }
 });
 
+app.get("/api/princetv-matches", async (req, res) => {
+    try {
+        const response = await axios.get("https://www.princetv.online/", { headers: { "User-Agent": "Mozilla/5.0" }, timeout: 12000 });
+        const $ = cheerio.load(response.data);
+        const matches: any[] = [];
+
+        // Dynamic scraping for Prince TV
+        // Often these sites use specific card classes or interactive elements
+        // I will look for links that look like channels or matches
+        $("a").each((_, el) => {
+            const href = $(el).attr("href");
+            const title = $(el).text().trim() || $(el).attr("title") || "";
+            const poster = $(el).find("img").attr("src") || "";
+
+            if (href && (href.includes("/watch/") || href.includes("match") || href.includes("channel"))) {
+                matches.push({
+                    title: title || "Live Stream",
+                    sport: "Prince TV",
+                    url: href.startsWith("http") ? href : `https://www.princetv.online${href}`,
+                    poster: poster.startsWith("http") ? poster : (poster ? `https://www.princetv.online${poster}` : "")
+                });
+            }
+        });
+
+        const uniqueMatches = Array.from(new Map(matches.map(m => [m.url, m])).values());
+        res.json(uniqueMatches);
+    } catch {
+        res.status(500).json({ error: "Failed to fetch Prince TV matches" });
+    }
+});
+
 app.get("/api/stream", async (req, res) => {
     const { url } = req.query;
     if (!url || typeof url !== "string") return res.status(400).json({ error: "URL is required" });
     try {
-        const response = await axios.get(url, { headers: { "User-Agent": "Mozilla/5.0", "Referer": "http://www.fawanews.sc/" }, timeout: 12000 });
+        const isPrinceTV = url.includes("princetv.online");
+        const referer = isPrinceTV ? "https://www.princetv.online/" : "http://www.fawanews.sc/";
+        const response = await axios.get(url, { headers: { "User-Agent": "Mozilla/5.0", "Referer": referer }, timeout: 12000 });
         const html = response.data as string;
         const $ = cheerio.load(html);
 
@@ -778,7 +811,10 @@ app.get("/api/stream", async (req, res) => {
                 const content = $(el).html() || "";
                 const m3u8Regex = /(?:source|file|url|src|videos|hls)\s*[:=,]\s*[[ ]*["']((?:https?:\/\/|\/)[^"']+\.m3u8[^"']*)["']/i;
                 const match = content.match(m3u8Regex);
-                if (match) { streamUrl = match[1].startsWith("/") ? `http://www.fawanews.sc${match[1]}` : match[1]; return false; }
+                if (match) {
+                    streamUrl = match[1].startsWith("/") ? (isPrinceTV ? `https://www.princetv.online${match[1]}` : `http://www.fawanews.sc${match[1]}`) : match[1];
+                    return false;
+                }
             });
         }
 
@@ -827,7 +863,11 @@ app.get("/api/proxy", async (req, res) => {
         const isM3U8 = url.toLowerCase().includes(".m3u8");
         let referer = req.query.referer as string || "http://www.fawanews.sc/";
         if (!req.query.referer) {
-            if (url.includes("videostr.net") || url.includes("rabbitstream.net") || url.includes("megacloud.tv") || url.includes("upcloud") || url.includes("hdtoday")) referer = "https://hdtodayz.to/";
+            if (url.includes("videostr.net") || url.includes("rabbitstream.net") || url.includes("megacloud.tv") || url.includes("upcloud") || url.includes("hdtoday")) {
+                referer = "https://hdtodayz.to/";
+            } else if (url.includes("princetv.online")) {
+                referer = "https://www.princetv.online/";
+            }
         }
         console.log(`[Proxy] Fetching: ${url.substring(0, 100)}... | Referer: ${referer}`);
         const response = await axios.get(url, { headers: { "User-Agent": "Mozilla/5.0", "Referer": referer }, responseType: isM3U8 ? "text" : "stream", timeout: 15000, validateStatus: () => true });

@@ -75,8 +75,22 @@ interface MediaDetails {
   seasons?: Season[];
 }
 
+const getSecureUrl = (url: string, referer?: string) => {
+  const isHttps = typeof window !== "undefined" && window.location.protocol === "https:";
+  // ONLY proxy if it's Mixed Content (HTTP on HTTPS)
+  if (isHttps && url.startsWith("http://") && !url.includes(window.location.hostname)) {
+    console.log("[App] Mixed Content detected, using secure-iframe proxy for:", url);
+    return `/api/secure-iframe?url=${encodeURIComponent(url)}${referer ? `&referer=${encodeURIComponent(referer)}` : ""}`;
+  }
+  // For movie servers or specified referers
+  if (referer && !url.includes(window.location.hostname) && !url.includes("/api/proxy")) {
+    return `/api/secure-iframe?url=${encodeURIComponent(url)}&referer=${encodeURIComponent(referer)}`;
+  }
+  return url;
+};
+
 const App: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'movies' | 'series' | 'sports'>('movies');
+  const [activeTab, setActiveTab] = useState<'movies' | 'series' | 'sports' | 'sports2'>('movies');
   const [sportsStandings, setSportsStandings] = useState<SportStanding[]>([]);
   const [sportsMatches, setSportsMatches] = useState<SportMatch[]>([]);
   const [activeSportSubTab, setActiveSportSubTab] = useState<'schedules' | 'standings'>('schedules');
@@ -99,10 +113,13 @@ const App: React.FC = () => {
   const [fetchingStream, setFetchingStream] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [sportsSearchQuery, setSportsSearchQuery] = useState("");
+  const [sports2Matches, setSports2Matches] = useState<Match[]>([]);
+  const [sports2SearchQuery, setSports2SearchQuery] = useState("");
   const [sportsDataLoading, setSportsDataLoading] = useState(false);
   const [serverIndex, setServerIndex] = useState(0);
   const [totalServers, setTotalServers] = useState(0);
   const [isSwitchingServer, setIsSwitchingServer] = useState(false);
+
 
   const genres = [
     { id: "action", name: "Action" },
@@ -125,6 +142,7 @@ const App: React.FC = () => {
 
   useEffect(() => {
     if (activeTab === "sports") fetchMatches();
+    if (activeTab === "sports2") fetchSports2Matches();
     if (activeTab === "movies") {
       fetchMovies();
       fetchTrending();
@@ -181,6 +199,10 @@ const App: React.FC = () => {
       setSportsSearchQuery(query);
       return;
     }
+    if (activeTab === 'sports2') {
+      setSports2SearchQuery(query);
+      return;
+    }
 
     setSearchQuery(query);
     if (query.length < 2) {
@@ -221,6 +243,19 @@ const App: React.FC = () => {
       setMatches(data);
     } catch (error) {
       console.error("Error fetching matches:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchSports2Matches = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch("/api/princetv-matches");
+      const data = await response.json();
+      setSports2Matches(data);
+    } catch (error) {
+      console.error("Error fetching Prince TV matches:", error);
     } finally {
       setLoading(false);
     }
@@ -271,45 +306,39 @@ const App: React.FC = () => {
     setStreamUrl(null);
     setEmbedUrl(null);
 
-    const isHttps = window.location.protocol === "https:";
-    const getSecureUrl = (url: string, referer?: string) => {
-      // ONLY proxy if it's Mixed Content (HTTP on HTTPS)
-      // Sports streams often need this.
-      if (isHttps && url.startsWith("http://") && !url.includes(window.location.hostname)) {
-        console.log("[Sports] Mixed Content detected, using secure-iframe proxy for:", url);
-        return `/api/secure-iframe?url=${encodeURIComponent(url)}${referer ? `&referer=${encodeURIComponent(referer)}` : ""}`;
-      }
-      return url;
-    };
-
     console.log("[Sports] Handling match click:", match.title, match.url);
     try {
       const response = await fetch(`/api/stream?url=${encodeURIComponent(match.url)}`);
       const data = await response.json();
       console.log("[Sports] Stream API response:", data);
 
-      if (data.link) {
-        if (data.type === "m3u8") {
-          console.log("[Sports] Using M3U8 stream:", data.link);
-          setStreamUrl(data.link);
-        } else if (data.type === "iframe") {
-          const finalUrl = getSecureUrl(data.link);
-          console.log("[Sports] Using iframe embed:", finalUrl);
-          setEmbedUrl(finalUrl);
+        const isPrinceTV = match.url.includes("princetv.online");
+        const defaultReferer = isPrinceTV ? "https://www.princetv.online/" : "http://www.fawanews.sc/";
+
+        if (data.link) {
+          if (data.type === "m3u8") {
+            console.log("[Sports] Using M3U8 stream:", data.link);
+            setStreamUrl(data.link);
+          } else if (data.type === "iframe") {
+            const finalUrl = getSecureUrl(data.link, defaultReferer);
+            console.log("[Sports] Using iframe embed:", finalUrl);
+            setEmbedUrl(finalUrl);
+          } else {
+            // Fallback
+            const finalUrl = getSecureUrl(match.url, defaultReferer);
+            console.log("[Sports] Fallback: using match URL directly:", finalUrl);
+            setEmbedUrl(finalUrl);
+          }
         } else {
-          // Fallback
-          const finalUrl = getSecureUrl(match.url);
-          console.log("[Sports] Fallback: using match URL directly:", finalUrl);
+          const finalUrl = getSecureUrl(match.url, defaultReferer);
+          console.log("[Sports] No link returned, using match URL directly:", finalUrl);
           setEmbedUrl(finalUrl);
         }
-      } else {
-        const finalUrl = getSecureUrl(match.url);
-        console.log("[Sports] No link returned, using match URL directly:", finalUrl);
-        setEmbedUrl(finalUrl);
-      }
     } catch (error) {
       console.error("[Sports] Error fetching stream, falling back to direct embed:", error);
-      const finalUrl = getSecureUrl(match.url);
+      const isPrinceTV = match.url.includes("princetv.online");
+      const defaultReferer = isPrinceTV ? "https://www.princetv.online/" : "http://www.fawanews.sc/";
+      const finalUrl = getSecureUrl(match.url, defaultReferer);
       setEmbedUrl(finalUrl);
     } finally {
       setFetchingStream(false);
@@ -348,7 +377,6 @@ const App: React.FC = () => {
 
   const handleEpisodeClick = async (id: string, type: string = "tv", index: number = 0) => {
     // Only block if we already have a stream or embed URL for this server index.
-    // This allows the initial fetch (where urls are null) but stops redundant triggers.
     if (fetchingStream && index === serverIndex && (streamUrl || embedUrl)) {
       console.log("[Frontend] Skipping redundant handleEpisodeClick");
       return;
@@ -359,17 +387,6 @@ const App: React.FC = () => {
     setEmbedUrl(null);
     setStreamUrl(null);
     setServerIndex(index);
-
-    const isHttps = window.location.protocol === "https:";
-    const getSecureUrl = (url: string) => {
-      // ALWAYS proxy movie embeds on HTTPS to spoof the referer, 
-      // otherwise servers like MegaCloud/UpCloud return "File Not Found".
-      if (isHttps && !url.includes(window.location.hostname)) {
-        console.log("[Movies] Proxying embed to spoof Referer:", url);
-        return `/api/secure-iframe?url=${encodeURIComponent(url)}&referer=${encodeURIComponent("https://hdtodayz.to/")}`;
-      }
-      return url;
-    };
 
     try {
       console.log(`[Frontend] Fetching source for ID: ${id}, type: ${type}, index: ${index}`);
@@ -390,7 +407,7 @@ const App: React.FC = () => {
           setStreamUrl(data.link);
         } else {
           // It's an iframe (UpCloud, MegaCloud, etc.)
-          setEmbedUrl(getSecureUrl(data.link));
+          setEmbedUrl(getSecureUrl(data.link, "https://hdtodayz.to/"));
         }
       } else {
         console.error("[Frontend] No link in response:", data);
@@ -430,8 +447,8 @@ const App: React.FC = () => {
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
             <input
               type="text"
-              placeholder={activeTab === 'sports' ? "Search match fixtures..." : "Search movies, series, or sports..."}
-              value={activeTab === 'sports' ? sportsSearchQuery : searchQuery}
+              placeholder={activeTab === 'sports' ? "Search match fixtures..." : activeTab === 'sports2' ? "Search Prince TV channels..." : "Search movies, series, or sports..."}
+              value={activeTab === 'sports' ? sportsSearchQuery : activeTab === 'sports2' ? sports2SearchQuery : searchQuery}
               onChange={(e) => handleSearch(e.target.value)}
               className="w-full bg-white/5 border border-white/10 rounded-2xl py-3 pl-12 pr-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all placeholder:text-slate-600"
             />
@@ -439,19 +456,20 @@ const App: React.FC = () => {
 
           <div className="flex items-center gap-4 md:gap-8">
             <nav className="flex items-center gap-3 md:gap-6">
-              {['sports', 'movies', 'series'].map((tab) => (
+              {['sports', 'sports2', 'movies', 'series'].map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab as any)}
                   className={`text-[10px] md:text-xs font-black uppercase tracking-widest transition-colors ${activeTab === tab ? "text-blue-500" : "text-slate-500 hover:text-white"}`}
                 >
-                  {tab === 'series' ? 'Series' : tab}
+                  {tab === 'sports2' ? 'Sports 2' : tab === 'series' ? 'Series' : tab}
                 </button>
               ))}
             </nav>
             <RefreshCw
               onClick={() => {
                 if (activeTab === "sports") fetchMatches();
+                if (activeTab === "sports2") fetchSports2Matches();
                 if (activeTab === "movies") fetchMovies();
                 if (activeTab === "series") fetchTvShows();
               }}
@@ -466,7 +484,7 @@ const App: React.FC = () => {
             <input
               type="text"
               placeholder="Search..."
-              value={activeTab === 'sports' ? sportsSearchQuery : searchQuery}
+              value={activeTab === 'sports' ? sportsSearchQuery : activeTab === 'sports2' ? sports2SearchQuery : searchQuery}
               onChange={(e) => handleSearch(e.target.value)}
               className="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 pl-10 pr-4 text-xs text-white focus:outline-none placeholder:text-slate-600"
             />
@@ -646,6 +664,59 @@ const App: React.FC = () => {
                 </div>
               </div>
             </div>
+          ) : activeTab === "sports2" ? (
+            <section>
+              <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center gap-4">
+                  <h3 className="text-2xl font-black text-white uppercase tracking-tighter italic">PRINCE TV <span className="text-blue-500">LIVE</span></h3>
+                  <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/10 border border-red-500/20 text-red-500 text-[10px] font-black uppercase">
+                    <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse" />
+                    Live Channels
+                  </div>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 py-8">
+                {loading ? (
+                  Array.from({ length: 12 }).map((_, i) => (
+                    <div key={i} className="h-[200px] rounded-[16px] bg-white/5 animate-pulse border border-white/5" />
+                  ))
+                ) : sports2Matches.filter(m => m.title.toLowerCase().includes(sports2SearchQuery.toLowerCase())).length > 0 ? (
+                  sports2Matches
+                    .filter(m => m.title.toLowerCase().includes(sports2SearchQuery.toLowerCase()))
+                    .map((match, index) => (
+                      <motion.div
+                        key={index}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.05 }}
+                        onClick={() => handleMatchClick(match)}
+                        className="group relative cursor-pointer"
+                      >
+                        <div className="aspect-video rounded-2xl overflow-hidden bg-slate-900 border border-white/5 transition-all duration-300 group-hover:border-blue-500/50 group-hover:shadow-[0_0_20px_rgba(59,130,246,0.2)]">
+                          <img
+                            src={match.poster || `https://picsum.photos/seed/${match.title}/400/225`}
+                            alt={match.title}
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                            onError={(e) => (e.currentTarget.src = "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=800&auto=format&fit=crop&q=60")}
+                          />
+                          <div className="absolute inset-0 bg-[#020617]/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center shadow-lg transform scale-90 group-hover:scale-100 transition-transform">
+                              <Play className="w-6 h-6 text-white fill-current ml-1" />
+                            </div>
+                          </div>
+                        </div>
+                        <h4 className="mt-3 text-[11px] font-bold text-slate-300 group-hover:text-blue-400 transition-colors uppercase tracking-tight line-clamp-1 italic px-1">
+                          {match.title}
+                        </h4>
+                      </motion.div>
+                    ))
+                ) : (
+                  <div className="col-span-full py-20 bg-white/5 rounded-[2rem] border border-white/5 text-center">
+                    <p className="text-slate-500 text-sm font-black uppercase tracking-widest italic opacity-50">No Prince TV channels available.</p>
+                  </div>
+                )}
+              </div>
+            </section>
           ) : (
             <>
               {trending.filter(t => t.type === (activeTab === "movies" ? "movie" : "tv")).length > 0 && (
@@ -767,7 +838,8 @@ const App: React.FC = () => {
                       onError={() => {
                         console.log("Switching to iframe fallback due to player error");
                         setPlayerError(true);
-                        if (selectedMatch) setEmbedUrl(selectedMatch.url);
+                        // Fix: use getSecureUrl even in fallback to avoid Mixed Content errors
+                        if (selectedMatch) setEmbedUrl(getSecureUrl(selectedMatch.url, "http://www.fawanews.sc/"));
                       }}
                     />
                   </div>
