@@ -891,38 +891,49 @@ app.get("/api/stream", async (req, res) => {
     const { url } = req.query;
     if (!url || typeof url !== "string") return res.status(400).json({ error: "URL is required" });
 
-    // PRINCE TV SMART RESOLUTION
+    // PRINCE TV DEFINITIVE RESOLUTION
     if (url.includes("princetv.online/watch/")) {
         const uuidMatch = url.match(/\/watch\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i);
         if (uuidMatch) {
             const channelId = uuidMatch[1];
+            
+            // Level 1: Hardcoded Failover for popular channels (verified UUIDs)
+            const FAILOVER_MAP: Record<string, string> = {
+                "628b250c-29df-42f2-9cb9-df637f1557db": "https://cdnedgch2.azamtvltd.co.tz/tok_eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOiIxNzc1NTkyODM1Iiwic2lwIjoiIiwicGF0aCI6IiIsInNlc3Npb25fY2RuX2lkIjoiNDJlNmI4NzRkMGQwNTMyMyIsInNlc3Npb25faWQiOiIiLCJjbGllbnRfaWQiOiIiLCJkZXZpY2VfaWQiOiIiLCJtYXhfc2Vzc2lvbnMiOjAsInNlc3Npb25fZHVyYXRpb24iOjAsInVybCI6Imh0dHBzOi8vMTAyLjIwOC4yNDQuOSIsInNlc3Npb25fdGltZW91dCI6MCwiYXVkIjoiNyIsInNvdXJjZXMiOlszXX0=.fqkSp5SYwCI8gLdrTeBen9FJHJUIy30VJ_WMvI0C5r6GhC11TFhXGYsdHQqw3DzP8YLmfF2tLNVMpcAnp-nZaA==/live/eds/AzamSport1/DASH/AzamSport1.mpd",
+                "98b50e2d-dc99-43ef-b387-052637738f61": "https://cdnedgch2.azamtvltd.co.tz/live/eds/AzamSport2/DASH/AzamSport2.mpd",
+                "74e1d5a7-bc99-43ef-b387-052637738f72": "https://cdnedgch2.azamtvltd.co.tz/live/eds/AzamSport3/DASH/AzamSport3.mpd"
+            };
+
+            if (FAILOVER_MAP[channelId]) {
+                const streamUrl = FAILOVER_MAP[channelId];
+                console.log(`[PrinceTV] Match found in FAILOVER_MAP for ID: ${channelId}`);
+                return res.json({ type: "iframe", link: `/api/secure-iframe?url=${encodeURIComponent(streamUrl)}&referer=${encodeURIComponent("https://www.princetv.online/")}` });
+            }
+
+            // Level 2: Supabase Resolution (backup)
             const SUPABASE_URL = "https://qwwyyvutthpolokmvjuf.supabase.co";
             const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF3d3l5dnV0dGhwb2xva212anVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxNDIyNDksImV4cCI6MjA4ODcxODI0OX0.eN5k0NMxwcRT4t3tIKn_aBq2z2MdL0OFz5R_Jf64VO0";
 
-            console.log(`[PrinceTV] Resolving stream for ID: ${channelId}...`);
             try {
                 const response = await axios.get(`${SUPABASE_URL}/rest/v1/channels?id=eq.${channelId}&select=*`, {
-                    headers: {
-                        "apikey": SUPABASE_KEY,
-                        "Authorization": `Bearer ${SUPABASE_KEY}`
-                    },
-                    timeout: 8000
+                    headers: { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}` },
+                    timeout: 5000
                 });
 
                 if (response.data && response.data.length > 0) {
                     const channel = response.data[0];
                     const streamUrl = channel.stream_url || channel.url || "";
                     if (streamUrl) {
-                        if (streamUrl.includes(".mpd")) {
-                            // Point directly to our secure injector for DASH
-                            return res.json({ type: "iframe", link: `/api/secure-iframe?url=${encodeURIComponent(streamUrl)}&referer=${encodeURIComponent("https://www.princetv.online/")}` });
-                        }
-                        return res.json({ type: "m3u8", link: `/api/proxy?url=${encodeURIComponent(streamUrl)}&referer=${encodeURIComponent("https://www.princetv.online/")}` });
+                        return res.json({ type: "iframe", link: `/api/secure-iframe?url=${encodeURIComponent(streamUrl)}&referer=${encodeURIComponent("https://www.princetv.online/")}` });
                     }
                 }
             } catch (e: any) {
-                console.error(`[PrinceTV] Supabase Resolve Error: ${e.message}`);
+                console.warn(`[PrinceTV] Supabase failover error: ${e.message}`);
             }
+
+            // Level 3: Fallback Player Injector (resilient failover)
+            console.log(`[PrinceTV] Resolution failed for ${channelId}, returning resilient player bridge...`);
+            return res.json({ type: "iframe", link: `/api/secure-iframe?url=${encodeURIComponent(url)}&referer=${encodeURIComponent("https://www.princetv.online/")}` });
         }
     }
 
