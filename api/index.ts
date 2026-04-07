@@ -294,15 +294,15 @@ app.get("/api/secure-iframe", async (req, res) => {
         let protectionDataScript = "";
         if (clearKeys && typeof clearKeys === "string") {
             try {
-                // Front-end passes stringified JSON format
+                // Front-end passes stringified JSON format { "hexKeyId": "hexKey" }
                 const parsedKeys = JSON.parse(decodeURIComponent(clearKeys));
                 protectionDataScript = `
-                    player.setProtectionData({
-                        "org.w3.clearkey": {
-                            "clearkeys": ${JSON.stringify(parsedKeys)}
+                    player.configure({
+                        drm: {
+                            clearKeys: ${JSON.stringify(parsedKeys)}
                         }
                     });
-                    console.log("[DASH] Injected ClearKeys into player config.");
+                    console.log("[DASH] Injected ClearKeys via Shaka Player.");
                 `;
             } catch (e: any) {
                 console.error("[DASH] Failed to parse clearKeys:", e.message);
@@ -314,7 +314,7 @@ app.get("/api/secure-iframe", async (req, res) => {
             <html>
                 <head>
                     <title>Sports 2 Player</title>
-                    <script src="https://cdn.dashjs.org/latest/dash.all.min.js"></script>
+                    <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.7.11/shaka-player.compiled.js"></script>
                     <style>
                         body, html { margin: 0; padding: 0; height: 100%; width: 100%; background: #000; overflow: hidden; }
                         #videoPlayer { height: 100%; width: 100%; outline: none; }
@@ -323,20 +323,21 @@ app.get("/api/secure-iframe", async (req, res) => {
                 <body>
                     <video id="videoPlayer" controls autoplay crossorigin="anonymous"></video>
                     <script>
-                        (function(){
+                        document.addEventListener('DOMContentLoaded', async () => {
                             const url = "${url}";
-                            const player = dashjs.MediaPlayer().create();
-                            player.initialize();
+                            const video = document.getElementById('videoPlayer');
+                            const player = new shaka.Player(video);
                             
                             // Apply DRM / Protection Data if provided
                             ${protectionDataScript}
 
-                            player.updateSettings({
-                                'debug': { 'logLevel': dashjs.Debug.LOG_LEVEL_NONE }
-                            });
-                            player.attachView(document.querySelector("#videoPlayer"));
-                            player.attachSource(url);
-                        })();
+                            try {
+                                await player.load(url);
+                                console.log("[DASH] Stream loaded successfully");
+                            } catch (e) {
+                                console.error("[DASH] Error loading stream", e);
+                            }
+                        });
                     </script>
                 </body>
             </html>
