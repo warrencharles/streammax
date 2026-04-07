@@ -447,7 +447,7 @@ const App: React.FC = () => {
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
             <input
               type="text"
-              placeholder={activeTab === 'sports' ? "Search match fixtures..." : activeTab === 'sports2' ? "Search Prince TV channels..." : "Search movies, series, or sports..."}
+              placeholder={activeTab === 'sports' ? "Search match fixtures..." : activeTab === 'sports2' ? "Search live channels..." : "Search movies, series, or sports..."}
               value={activeTab === 'sports' ? sportsSearchQuery : activeTab === 'sports2' ? sports2SearchQuery : searchQuery}
               onChange={(e) => handleSearch(e.target.value)}
               className="w-full bg-white/5 border border-white/10 rounded-2xl py-3 pl-12 pr-4 text-sm text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all placeholder:text-slate-600"
@@ -462,7 +462,7 @@ const App: React.FC = () => {
                   onClick={() => setActiveTab(tab as any)}
                   className={`text-[10px] md:text-xs font-black uppercase tracking-widest transition-colors ${activeTab === tab ? "text-blue-500" : "text-slate-500 hover:text-white"}`}
                 >
-                  {tab === 'sports2' ? 'Sports 2' : tab === 'series' ? 'Series' : tab}
+                  {tab === 'sports2' ? 'Digital Sports' : tab === 'series' ? 'Series' : tab}
                 </button>
               ))}
             </nav>
@@ -668,10 +668,10 @@ const App: React.FC = () => {
             <section>
               <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-4">
-                  <h3 className="text-2xl font-black text-white uppercase tracking-tighter italic">PRINCE TV <span className="text-blue-500">LIVE</span></h3>
-                  <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/10 border border-red-500/20 text-red-500 text-[10px] font-black uppercase">
-                    <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse" />
-                    Live Channels
+                  <h3 className="text-2xl font-black text-white uppercase tracking-tighter italic">DIGITAL <span className="text-blue-500">SPORTS Hub</span></h3>
+                  <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-500 text-[10px] font-black uppercase">
+                    <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse" />
+                    Global Feed
                   </div>
                 </div>
               </div>
@@ -712,7 +712,7 @@ const App: React.FC = () => {
                     ))
                 ) : (
                   <div className="col-span-full py-20 bg-white/5 rounded-[2rem] border border-white/5 text-center">
-                    <p className="text-slate-500 text-sm font-black uppercase tracking-widest italic opacity-50">No Prince TV channels available.</p>
+                    <p className="text-slate-500 text-sm font-black uppercase tracking-widest italic opacity-50">No additional channels available.</p>
                   </div>
                 )}
               </div>
