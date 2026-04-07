@@ -588,6 +588,56 @@ app.get("/api/tv-shows", async (req, res) => {
     }
 });
 
+app.get("/api/secure-iframe", async (req, res) => {
+    const { url, referer } = req.query;
+    if (!url || typeof url !== "string") return res.status(400).send("URL is required");
+
+    // SMART DASH PLAYER INJECTION
+    if (url.includes(".mpd") || url.includes("DASH")) {
+        console.log(`[DASH] Injecting player for: ${url}`);
+        return res.send(`
+            <!DOCTYPE html>
+            <html>
+                <head>
+                    <title>Digital Sports Player</title>
+                    <script src="https://cdn.dashjs.org/latest/dash.all.min.js"></script>
+                    <style>
+                        body, html { margin: 0; padding: 0; height: 100%; width: 100%; background: #000; overflow: hidden; }
+                        #videoPlayer { height: 100%; width: 100%; outline: none; }
+                    </style>
+                </head>
+                <body>
+                    <video id="videoPlayer" controls autoplay crossorigin="anonymous"></video>
+                    <script>
+                        (function(){
+                            const url = "${url}";
+                            const player = dashjs.MediaPlayer().create();
+                            player.initialize(document.querySelector("#videoPlayer"), url, true);
+                            player.updateSettings({
+                                'debug': { 'logLevel': dashjs.Debug.LOG_LEVEL_NONE },
+                                'streaming': { 'lowLatencyEnabled': true }
+                            });
+                        })();
+                    </script>
+                </body>
+            </html>
+        `);
+    }
+
+    try {
+        const response = await axios.get(url, {
+            headers: {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                "Referer": (referer as string) || "https://www.princetv.online/"
+            },
+            timeout: 12000
+        });
+        res.send(response.data);
+    } catch (err: any) {
+        res.status(500).send("Failed to load secure iframe");
+    }
+});
+
 // API to fetch details (seasons/episodes) for a TV show or movie
 app.get("/api/details", async (req, res) => {
     const { url } = req.query;
@@ -864,7 +914,8 @@ app.get("/api/stream", async (req, res) => {
                     const streamUrl = channel.stream_url || channel.url || "";
                     if (streamUrl) {
                         if (streamUrl.includes(".mpd")) {
-                            return res.json({ type: "iframe", link: url }); // Maintain iframe for DASH if player is needed
+                            // Point directly to our secure injector for DASH
+                            return res.json({ type: "iframe", link: `/api/secure-iframe?url=${encodeURIComponent(streamUrl)}&referer=${encodeURIComponent("https://www.princetv.online/")}` });
                         }
                         return res.json({ type: "m3u8", link: `/api/proxy?url=${encodeURIComponent(streamUrl)}&referer=${encodeURIComponent("https://www.princetv.online/")}` });
                     }
