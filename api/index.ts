@@ -228,6 +228,49 @@ app.use((req, res, next) => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
+// PRINCE TV BACKEND AUTHENTICATION
+// Automatically maintains a valid JWT session for premium streams
+// ─────────────────────────────────────────────────────────────────────────────
+const SUPABASE_URL = "https://qwwyyvutthpolokmvjuf.supabase.co";
+const ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF3d3l5dnV0dGhwb2xva212anVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxNDIyNDksImV4cCI6MjA4ODcxODI0OX0.eN5k0NMxwcRT4t3tIKn_aBq2z2MdL0OFz5R_Jf64VO0";
+let cachedPrinceTvToken: string | null = null;
+let tokenExpiryTime: number = 0;
+
+async function getPrinceTvToken(forceRefresh = false): Promise<string | null> {
+    const now = Date.now();
+    // Cache the token until 5 minutes before expiry (Supabase tokens usually last 1 hour)
+    if (!forceRefresh && cachedPrinceTvToken && now < tokenExpiryTime) {
+        return cachedPrinceTvToken;
+    }
+
+    try {
+        console.log("[PrinceTV] Authenticating to obtain fresh JWT token...");
+        const response = await axios.post(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+            email: "dhawsen_16c@buyu308.com",
+            password: "okokok"
+        }, {
+            headers: {
+                "apikey": ANON_KEY,
+                "Content-Type": "application/json"
+            }
+        });
+
+        if (response.data && response.data.access_token) {
+            cachedPrinceTvToken = response.data.access_token;
+            // expires_in is in seconds, buffer by 5 minutes
+            const expiresInMs = (response.data.expires_in * 1000) - (5 * 60 * 1000);
+            tokenExpiryTime = now + expiresInMs;
+            console.log("[PrinceTV] Successfully authenticated and cached token.");
+            return cachedPrinceTvToken;
+        }
+        return null;
+    } catch (error: any) {
+        console.error("[PrinceTV] Authentication failed:", error.message);
+        return null;
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // API ROUTES
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -241,12 +284,31 @@ app.get('/api/health', (req, res) => {
 // ─────────────────────────────────────────────────────────────────────────────
 
 app.get("/api/secure-iframe", async (req, res) => {
-    const { url, referer } = req.query;
+    const { url, referer, clearKeys } = req.query;
     if (!url || typeof url !== "string") return res.status(400).send("URL required");
 
     // SMART DASH PLAYER INJECTION
     if (url.includes(".mpd") || url.includes("DASH")) {
         console.log(`[DASH] Injecting player for: ${url}`);
+        
+        let protectionDataScript = "";
+        if (clearKeys && typeof clearKeys === "string") {
+            try {
+                // Front-end passes stringified JSON format
+                const parsedKeys = JSON.parse(decodeURIComponent(clearKeys));
+                protectionDataScript = `
+                    player.setProtectionData({
+                        "org.w3.clearkey": {
+                            "clearkeys": ${JSON.stringify(parsedKeys)}
+                        }
+                    });
+                    console.log("[DASH] Injected ClearKeys into player config.");
+                `;
+            } catch (e: any) {
+                console.error("[DASH] Failed to parse clearKeys:", e.message);
+            }
+        }
+
         return res.send(`
             <!DOCTYPE html>
             <html>
@@ -264,10 +326,16 @@ app.get("/api/secure-iframe", async (req, res) => {
                         (function(){
                             const url = "${url}";
                             const player = dashjs.MediaPlayer().create();
-                            player.initialize(document.querySelector("#videoPlayer"), url, true);
+                            player.initialize();
+                            
+                            // Apply DRM / Protection Data if provided
+                            ${protectionDataScript}
+
                             player.updateSettings({
                                 'debug': { 'logLevel': dashjs.Debug.LOG_LEVEL_NONE }
                             });
+                            player.attachView(document.querySelector("#videoPlayer"));
+                            player.attachSource(url);
                         })();
                     </script>
                 </body>
@@ -944,10 +1012,53 @@ app.get("/api/stream", async (req, res) => {
     if (url.includes("princetv.online")) {
         const idMatch = url.match(/\/watch\/([^/?#]+)/i);
         const channelId = idMatch ? idMatch[1] : "";
-        console.log(`[PrinceTV] Channel ID: ${channelId} — requires DRM/auth, returning auth_required`);
+        console.log(`[PrinceTV] Auto-authenticating for channel ID: ${channelId}`);
 
-        // Prince TV now uses DRM (Widevine/ClearKey) and their site enforces CSP `frame-ancestors` blocking iframes.
-        // We must prompt the user to watch it directly on Prince TV.
+        if (!channelId) return res.json({ type: "auth_required", link: url, channelId });
+
+        try {
+            // Get cached token (auto-refreshes if needed)
+            let token = await getPrinceTvToken();
+            if (!token) throw new Error("Could not authenticate");
+
+            const fetchConfig = async (t: string) => {
+                return await axios.post(`${SUPABASE_URL}/functions/v1/get-stream-config`, { channelId }, {
+                    headers: { 'Authorization': `Bearer ${t}`, 'Content-Type': 'application/json' },
+                    timeout: 8000
+                });
+            };
+
+            let configRes;
+            try {
+                configRes = await fetchConfig(token);
+            } catch (err: any) {
+                // If 401 Unauthorized, token might be revoked, force refresh once
+                if (err.response?.status === 401) {
+                    console.log("[PrinceTV] Token rejected (401), forcing refresh...");
+                    token = await getPrinceTvToken(true);
+                    if (token) configRes = await fetchConfig(token);
+                    else throw err;
+                } else {
+                    throw err;
+                }
+            }
+
+            const data = configRes.data;
+            if (data && data.streamUrl) {
+                console.log(`[PrinceTV] Received stream config with DRM.`);
+                // Return iframe proxy instruction + the clear keys so frontend can pass them to secure-iframe
+                return res.json({
+                    type: "iframe",
+                    link: data.streamUrl,
+                    clearKeys: data.clearKeys || data.clear_keys || null,
+                    streamType: data.streamType || data.stream_type || "hls"
+                });
+            }
+        } catch (error: any) {
+            console.error("[PrinceTV] Error resolving stream via Edge Function:", error.message);
+        }
+
+        // Fallback to auth_required UI
         return res.json({ type: "auth_required", link: url, channelId });
     }
 
