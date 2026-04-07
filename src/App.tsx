@@ -112,6 +112,7 @@ const App: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
   const [playerError, setPlayerError] = useState<boolean>(false);
+  const [authRequired, setAuthRequired] = useState<string | null>(null); // Prince TV auth URL
   const [activeCategory, setActiveCategory] = useState("all");
   const [selectedItem, setSelectedItem] = useState<MediaItem | null>(null);
   const [itemDetails, setItemDetails] = useState<MediaDetails | null>(null);
@@ -309,6 +310,7 @@ const App: React.FC = () => {
   const handleMatchClick = async (match: Match) => {
     setSelectedMatch(match);
     setPlayerError(false);
+    setAuthRequired(null);
     setFetchingStream(true);
     setStreamUrl(null);
     setEmbedUrl(null);
@@ -322,13 +324,23 @@ const App: React.FC = () => {
         const isPrinceTV = match.url.includes("princetv.online");
         const defaultReferer = isPrinceTV ? "https://www.princetv.online/" : "http://www.fawanews.sc/";
 
-        if (data.link) {
+        if (data.type === "auth_required") {
+          // Prince TV channel with no FAILOVER_MAP entry — requires user login
+          console.log("[Sports] Auth required for:", data.link);
+          setAuthRequired(data.link);
+        } else if (data.link) {
           if (data.type === "m3u8") {
             console.log("[Sports] Using M3U8 stream:", data.link);
             setStreamUrl(data.link);
           } else if (data.type === "iframe") {
-            // Prince TV must be embedded directly — it requires real browser JS, not server-side proxy
-            const finalUrl = isPrinceTV ? data.link : getSecureUrl(data.link, defaultReferer);
+            // CDN DASH .mpd URLs → go through secure-iframe (which injects dash.js player)
+            // Prince TV watch URLs (without .mpd) → embed directly (no proxy, needs real browser)
+            const isCdnDash = data.link.includes(".mpd") || data.link.includes("azamtvltd") || data.link.includes("cdnedg");
+            const finalUrl = isCdnDash
+              ? `/api/secure-iframe?url=${encodeURIComponent(data.link)}&referer=${encodeURIComponent(defaultReferer)}`
+              : isPrinceTV
+              ? data.link  // Direct embed (no proxy)
+              : getSecureUrl(data.link, defaultReferer);
             console.log("[Sports] Using iframe embed:", finalUrl);
             setEmbedUrl(finalUrl);
           } else {
@@ -870,6 +882,33 @@ const App: React.FC = () => {
                       }}
                     />
                   </div>
+                ) : authRequired ? (
+                  // Prince TV channel requires user login
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-6 bg-[#010410] px-8">
+                    <div className="relative">
+                      <div className="w-16 h-16 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
+                        <Tv className="w-8 h-8 text-blue-500" />
+                      </div>
+                      <div className="absolute -top-1 -right-1 w-5 h-5 bg-amber-500 rounded-full flex items-center justify-center">
+                        <span className="text-[8px] font-black text-white">!</span>
+                      </div>
+                    </div>
+                    <div className="text-center space-y-2">
+                      <p className="text-white font-black uppercase tracking-widest text-xs">Premium Channel</p>
+                      <p className="text-slate-400 text-[11px] font-medium leading-relaxed max-w-xs">
+                        This channel requires a Prince TV account to stream. Login to access live sports.
+                      </p>
+                    </div>
+                    <a
+                      href={authRequired}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-blue-500/30 flex items-center gap-2"
+                    >
+                      <Play className="w-3 h-3 fill-current" />
+                      Watch on Prince TV
+                    </a>
+                  </div>
                 ) : (
                   <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 text-slate-800 bg-[#010410]">
                     <div className="relative">
@@ -906,6 +945,7 @@ const App: React.FC = () => {
                   setItemDetails(null);
                   setStreamUrl(null);
                   setEmbedUrl(null);
+                  setAuthRequired(null);
                 }}
                 className="fixed top-4 right-4 md:absolute md:top-6 md:right-6 p-3.5 md:p-4 rounded-full bg-black/80 backdrop-blur-3xl border border-white/20 text-white shadow-[0_0_30px_rgba(0,0,0,0.5)] z-[100] group transition-all active:scale-90"
                 aria-label="Close Player"
