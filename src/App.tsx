@@ -462,7 +462,7 @@ const App: React.FC = () => {
                   onClick={() => setActiveTab(tab as any)}
                   className={`text-[10px] md:text-xs font-black uppercase tracking-widest transition-colors ${activeTab === tab ? "text-blue-500" : "text-slate-500 hover:text-white"}`}
                 >
-                  {tab === 'sports2' ? 'Digital Sports' : tab === 'series' ? 'Series' : tab}
+                  {tab === 'sports2' ? 'Sports 2' : tab === 'series' ? 'Series' : tab}
                 </button>
               ))}
             </nav>

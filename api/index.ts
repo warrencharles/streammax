@@ -236,6 +236,69 @@ app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', environment: IS_VERCEL ? 'vercel' : 'local' });
 });
 
+// ─────────────────────────────────────────────────────────────────────────────
+// CORE PROXY ROUTES (High Priority)
+// ─────────────────────────────────────────────────────────────────────────────
+
+app.get("/api/secure-iframe", async (req, res) => {
+    const { url, referer } = req.query;
+    if (!url || typeof url !== "string") return res.status(400).send("URL required");
+    const targetReferer = (referer as string) || "http://www.fawanews.sc/";
+    try {
+        const response = await axios.get(url, { headers: { "User-Agent": "Mozilla/5.0", "Referer": targetReferer }, timeout: 10000 });
+        let html = response.data;
+        const baseTag = `<base href="${url}">`;
+        if (html.includes("<head>")) { html = html.replace("<head>", `<head>${baseTag}`); }
+        else { html = baseTag + html; }
+        res.setHeader("Content-Type", "text/html");
+        res.send(html);
+    } catch (e: any) {
+        res.status(500).send(`Failed to proxy iframe: ${e.message}`);
+    }
+});
+
+app.get("/api/proxy", async (req, res) => {
+    const { url } = req.query;
+    if (!url || typeof url !== "string") return res.status(400).send("URL is required");
+    try {
+        const isM3U8 = url.toLowerCase().includes(".m3u8");
+        let referer = req.query.referer as string || "http://www.fawanews.sc/";
+        if (!req.query.referer) {
+            if (url.includes("videostr.net") || url.includes("rabbitstream.net") || url.includes("megacloud.tv") || url.includes("upcloud") || url.includes("hdtoday")) {
+                referer = "https://hdtodayz.to/";
+            } else if (url.includes("princetv.online")) {
+                referer = "https://www.princetv.online/";
+            }
+        }
+        console.log(`[Proxy] Fetching: ${url.substring(0, 100)}... | Referer: ${referer}`);
+        const response = await axios.get(url, { headers: { "User-Agent": "Mozilla/5.0", "Referer": referer }, responseType: isM3U8 ? "text" : "stream", timeout: 15000, validateStatus: () => true });
+        if (response.status >= 400) {
+            console.error(`[Proxy] Remote server error ${response.status} for ${url.substring(0, 100)}`);
+            return res.status(response.status).send(`Remote server error: ${response.status}`);
+        }
+        res.setHeader("Access-Control-Allow-Origin", "*");
+        res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+        res.setHeader("Access-Control-Allow-Headers", "*");
+        if (isM3U8) {
+            const lines = (response.data as string).split("\n");
+            const modifiedLines = lines.map(line => {
+                const trimmed = line.trim();
+                if (trimmed === "" || trimmed.startsWith("#")) return line;
+                let resolvedUrl;
+                try { resolvedUrl = new URL(trimmed, url).href; } catch { resolvedUrl = trimmed; }
+                return `/api/proxy?url=${encodeURIComponent(resolvedUrl)}&referer=${encodeURIComponent(referer)}`;
+            });
+            res.setHeader("Content-Type", "application/vnd.apple.mpegurl");
+            res.send(modifiedLines.join("\n"));
+        } else {
+            res.setHeader("Content-Type", response.headers["content-type"] || "application/octet-stream");
+            (response.data as any).pipe(res);
+        }
+    } catch (error: any) {
+        res.status(500).send(`Proxy fatal error: ${error.message}`);
+    }
+});
+
 // Database test endpoint
 app.get("/api/test-db", async (req, res) => {
     if (!IS_VERCEL) return res.json({ status: 'ok', message: 'Local storage used' });
@@ -599,7 +662,7 @@ app.get("/api/secure-iframe", async (req, res) => {
             <!DOCTYPE html>
             <html>
                 <head>
-                    <title>Digital Sports Player</title>
+                    <title>Sports 2 Player</title>
                     <script src="https://cdn.dashjs.org/latest/dash.all.min.js"></script>
                     <style>
                         body, html { margin: 0; padding: 0; height: 100%; width: 100%; background: #000; overflow: hidden; }
@@ -844,7 +907,7 @@ app.get("/api/princetv-matches", async (req, res) => {
             if (url && title) {
                 matches.push({
                     title: title,
-                    sport: "Digital Sports",
+                    sport: "Sports 2",
                     url: url,
                     poster: poster
                 });
@@ -870,7 +933,7 @@ app.get("/api/princetv-matches", async (req, res) => {
             fallbackChannels.forEach(ch => {
                 matches.push({
                     title: ch.title,
-                    sport: "Digital Sports",
+                    sport: "Sports 2",
                     url: `https://www.princetv.online/watch/${ch.id}`,
                     poster: `https://picsum.photos/seed/${ch.id}/400/225`
                 });
@@ -882,7 +945,7 @@ app.get("/api/princetv-matches", async (req, res) => {
         res.json(uniqueMatches);
     } catch (error: any) {
         console.error("[Sports 2] Fetch error:", error.message);
-        res.status(500).json({ error: "Failed to load Digital Sports channels" });
+        res.status(500).json({ error: "Failed to load Sports 2 channels" });
     }
 });
 
@@ -892,15 +955,18 @@ app.get("/api/stream", async (req, res) => {
 
     // PRINCE TV DEFINITIVE RESOLUTION
     if (url.includes("princetv.online/watch/")) {
-        const uuidMatch = url.match(/\/watch\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i);
-        if (uuidMatch) {
-            const channelId = uuidMatch[1];
+        const idMatch = url.match(/\/watch\/([^/]+)/i);
+        if (idMatch) {
+            const channelId = idMatch[1];
             
-            // Level 1: Hardcoded Failover for popular channels (verified UUIDs)
+            // Level 1: Hardcoded Failover for popular channels (verified UUIDs and slugs)
             const FAILOVER_MAP: Record<string, string> = {
                 "628b250c-29df-42f2-9cb9-df637f1557db": "https://cdnedgch2.azamtvltd.co.tz/tok_eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOiIxNzc1NTkyODM1Iiwic2lwIjoiIiwicGF0aCI6IiIsInNlc3Npb25fY2RuX2lkIjoiNDJlNmI4NzRkMGQwNTMyMyIsInNlc3Npb25faWQiOiIiLCJjbGllbnRfaWQiOiIiLCJkZXZpY2VfaWQiOiIiLCJtYXhfc2Vzc2lvbnMiOjAsInNlc3Npb25fZHVyYXRpb24iOjAsInVybCI6Imh0dHBzOi8vMTAyLjIwOC4yNDQuOSIsInNlc3Npb25fdGltZW91dCI6MCwiYXVkIjoiNyIsInNvdXJjZXMiOlszXX0=.fqkSp5SYwCI8gLdrTeBen9FJHJUIy30VJ_WMvI0C5r6GhC11TFhXGYsdHQqw3DzP8YLmfF2tLNVMpcAnp-nZaA==/live/eds/AzamSport1/DASH/AzamSport1.mpd",
                 "98b50e2d-dc99-43ef-b387-052637738f61": "https://cdnedgch2.azamtvltd.co.tz/live/eds/AzamSport2/DASH/AzamSport2.mpd",
-                "74e1d5a7-bc99-43ef-b387-052637738f72": "https://cdnedgch2.azamtvltd.co.tz/live/eds/AzamSport3/DASH/AzamSport3.mpd"
+                "74e1d5a7-bc99-43ef-b387-052637738f72": "https://cdnedgch2.azamtvltd.co.tz/live/eds/AzamSport3/DASH/AzamSport3.mpd",
+                "51c2e3a1-bc99-43ef-b387-052637738f83": "https://cdnedgch2.azamtvltd.co.tz/live/eds/AzamSport4/DASH/AzamSport4.mpd",
+                "be1n-sports-1-hd": "https://www.princetv.online/watch/be1n-sports-1-hd",
+                "supersport-1-hd": "https://www.princetv.online/watch/supersport-1-hd"
             };
 
             if (FAILOVER_MAP[channelId]) {
@@ -982,76 +1048,6 @@ app.get("/api/stream", async (req, res) => {
     }
 });
 
-app.get("/api/secure-iframe", async (req, res) => {
-    const { url, referer } = req.query;
-    if (!url || typeof url !== "string") return res.status(400).send("URL required");
-
-    // Default referer for sports if not provided
-    const targetReferer = (referer as string) || "http://www.fawanews.sc/";
-
-    try {
-        const response = await axios.get(url, {
-            headers: {
-                "User-Agent": "Mozilla/5.0",
-                "Referer": targetReferer
-            }
-        });
-        let html = response.data;
-        // Inject <base> tag to resolve relative assets on the original host
-        const baseTag = `<base href="${url}">`;
-        if (html.includes("<head>")) {
-            html = html.replace("<head>", `<head>${baseTag}`);
-        } else {
-            html = baseTag + html;
-        }
-        res.setHeader("Content-Type", "text/html");
-        res.send(html);
-    } catch (e: any) {
-        res.status(500).send(`Failed to proxy iframe: ${e.message}`);
-    }
-});
-
-app.get("/api/proxy", async (req, res) => {
-    const { url } = req.query;
-    if (!url || typeof url !== "string") return res.status(400).send("URL is required");
-    try {
-        const isM3U8 = url.toLowerCase().includes(".m3u8");
-        let referer = req.query.referer as string || "http://www.fawanews.sc/";
-        if (!req.query.referer) {
-            if (url.includes("videostr.net") || url.includes("rabbitstream.net") || url.includes("megacloud.tv") || url.includes("upcloud") || url.includes("hdtoday")) {
-                referer = "https://hdtodayz.to/";
-            } else if (url.includes("princetv.online")) {
-                referer = "https://www.princetv.online/";
-            }
-        }
-        console.log(`[Proxy] Fetching: ${url.substring(0, 100)}... | Referer: ${referer}`);
-        const response = await axios.get(url, { headers: { "User-Agent": "Mozilla/5.0", "Referer": referer }, responseType: isM3U8 ? "text" : "stream", timeout: 15000, validateStatus: () => true });
-        if (response.status >= 400) {
-            console.error(`[Proxy] Remote server error ${response.status} for ${url.substring(0, 100)}`);
-            return res.status(response.status).send(`Remote server error: ${response.status}`);
-        }
-        res.setHeader("Access-Control-Allow-Origin", "*");
-        res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
-        res.setHeader("Access-Control-Allow-Headers", "*");
-        if (isM3U8) {
-            const lines = (response.data as string).split("\n");
-            const modifiedLines = lines.map(line => {
-                const trimmed = line.trim();
-                if (trimmed === "" || trimmed.startsWith("#")) return line;
-                let resolvedUrl;
-                try { resolvedUrl = new URL(trimmed, url).href; } catch { resolvedUrl = trimmed; }
-                return `/api/proxy?url=${encodeURIComponent(resolvedUrl)}&referer=${encodeURIComponent(referer)}`;
-            });
-            res.setHeader("Content-Type", "application/vnd.apple.mpegurl");
-            res.send(modifiedLines.join("\n"));
-        } else {
-            res.setHeader("Content-Type", response.headers["content-type"] || "application/octet-stream");
-            (response.data as any).pipe(res);
-        }
-    } catch (error: any) {
-        res.status(500).send(`Proxy fatal error: ${error.message}`);
-    }
-});
 
 // Vite middleware for development (only if not on Vercel)
 if (!IS_VERCEL && process.env.NODE_ENV !== "production") {
