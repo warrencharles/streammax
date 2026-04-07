@@ -243,14 +243,48 @@ app.get('/api/health', (req, res) => {
 app.get("/api/secure-iframe", async (req, res) => {
     const { url, referer } = req.query;
     if (!url || typeof url !== "string") return res.status(400).send("URL required");
+
+    // SMART DASH PLAYER INJECTION
+    if (url.includes(".mpd") || url.includes("DASH")) {
+        console.log(`[DASH] Injecting player for: ${url}`);
+        return res.send(`
+            <!DOCTYPE html>
+            <html>
+                <head>
+                    <title>Sports 2 Player</title>
+                    <script src="https://cdn.dashjs.org/latest/dash.all.min.js"></script>
+                    <style>
+                        body, html { margin: 0; padding: 0; height: 100%; width: 100%; background: #000; overflow: hidden; }
+                        #videoPlayer { height: 100%; width: 100%; outline: none; }
+                    </style>
+                </head>
+                <body>
+                    <video id="videoPlayer" controls autoplay crossorigin="anonymous"></video>
+                    <script>
+                        (function(){
+                            const url = "${url}";
+                            const player = dashjs.MediaPlayer().create();
+                            player.initialize(document.querySelector("#videoPlayer"), url, true);
+                            player.updateSettings({
+                                'debug': { 'logLevel': dashjs.Debug.LOG_LEVEL_NONE }
+                            });
+                        })();
+                    </script>
+                </body>
+            </html>
+        `);
+    }
+
     const targetReferer = (referer as string) || "http://www.fawanews.sc/";
     try {
         const response = await axios.get(url, { headers: { "User-Agent": "Mozilla/5.0", "Referer": targetReferer }, timeout: 10000 });
         let html = response.data;
         const baseTag = `<base href="${url}">`;
-        if (html.includes("<head>")) { html = html.replace("<head>", `<head>${baseTag}`); }
-        else { html = baseTag + html; }
-        res.setHeader("Content-Type", "text/html");
+        if (typeof html === 'string') {
+            if (html.includes("<head>")) { html = html.replace("<head>", `<head>${baseTag}`); }
+            else { html = baseTag + html; }
+        }
+        res.setHeader("Content-Type", response.headers["content-type"] || "text/html");
         res.send(html);
     } catch (e: any) {
         res.status(500).send(`Failed to proxy iframe: ${e.message}`);
@@ -651,54 +685,6 @@ app.get("/api/tv-shows", async (req, res) => {
     }
 });
 
-app.get("/api/secure-iframe", async (req, res) => {
-    const { url, referer } = req.query;
-    if (!url || typeof url !== "string") return res.status(400).send("URL is required");
-
-    // SMART DASH PLAYER INJECTION
-    if (url.includes(".mpd") || url.includes("DASH")) {
-        console.log(`[DASH] Injecting player for: ${url}`);
-        return res.send(`
-            <!DOCTYPE html>
-            <html>
-                <head>
-                    <title>Sports 2 Player</title>
-                    <script src="https://cdn.dashjs.org/latest/dash.all.min.js"></script>
-                    <style>
-                        body, html { margin: 0; padding: 0; height: 100%; width: 100%; background: #000; overflow: hidden; }
-                        #videoPlayer { height: 100%; width: 100%; outline: none; }
-                    </style>
-                </head>
-                <body>
-                    <video id="videoPlayer" controls autoplay crossorigin="anonymous"></video>
-                    <script>
-                        (function(){
-                            const url = "${url}";
-                            const player = dashjs.MediaPlayer().create();
-                            player.initialize(document.querySelector("#videoPlayer"), url, true);
-                            player.updateSettings({
-                                'debug': { 'logLevel': dashjs.Debug.LOG_LEVEL_NONE }
-                            });
-                        })();
-                    </script>
-                </body>
-            </html>
-        `);
-    }
-
-    try {
-        const response = await axios.get(url, {
-            headers: {
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-                "Referer": (referer as string) || "https://www.princetv.online/"
-            },
-            timeout: 12000
-        });
-        res.send(response.data);
-    } catch (err: any) {
-        res.status(500).send("Failed to load secure iframe");
-    }
-});
 
 // API to fetch details (seasons/episodes) for a TV show or movie
 app.get("/api/details", async (req, res) => {
