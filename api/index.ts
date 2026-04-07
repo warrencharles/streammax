@@ -287,7 +287,8 @@ app.get("/api/secure-iframe", async (req, res) => {
         res.setHeader("Content-Type", response.headers["content-type"] || "text/html");
         res.send(html);
     } catch (e: any) {
-        res.status(500).send(`Failed to proxy iframe: ${e.message}`);
+        const statusCode = e.response && e.response.status ? e.response.status : 500;
+        res.status(statusCode).send(`Failed to proxy iframe: ${e.message}`);
     }
 });
 
@@ -915,7 +916,7 @@ app.get("/api/princetv-matches", async (req, res) => {
                 { title: "SuperSport 2", id: "supersport-2-hd" },
                 { title: "SuperSport 3", id: "supersport-3-hd" }
             ];
-            
+
             fallbackChannels.forEach(ch => {
                 matches.push({
                     title: ch.title,
@@ -974,12 +975,12 @@ app.get("/api/stream", async (req, res) => {
                     streamUrl = match[1].startsWith("/") ? `http://www.fawanews.sc${match[1]}` : match[1];
                     if (streamUrl.includes(".mpd")) {
                         console.log("[Stream] Found DASH stream in script (.mpd), using iframe fallback.");
-                        return false; 
+                        return false;
                     }
                     return false;
                 }
             });
-            
+
             if (streamUrl && streamUrl.includes(".mpd")) {
                 return res.json({ type: "iframe", link: url });
             }

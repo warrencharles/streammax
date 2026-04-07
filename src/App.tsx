@@ -77,6 +77,13 @@ interface MediaDetails {
 
 const getSecureUrl = (url: string, referer?: string) => {
   const isHttps = typeof window !== "undefined" && window.location.protocol === "https:";
+
+  // Prince TV requires a real browser with JS — never proxy it through secure-iframe
+  if (url.includes("princetv.online")) {
+    console.log("[App] Prince TV URL — embedding directly (no proxy):", url);
+    return url;
+  }
+
   // ONLY proxy if it's Mixed Content (HTTP on HTTPS)
   if (isHttps && url.startsWith("http://") && !url.includes(window.location.hostname)) {
     console.log("[App] Mixed Content detected, using secure-iframe proxy for:", url);
@@ -320,17 +327,18 @@ const App: React.FC = () => {
             console.log("[Sports] Using M3U8 stream:", data.link);
             setStreamUrl(data.link);
           } else if (data.type === "iframe") {
-            const finalUrl = getSecureUrl(data.link, defaultReferer);
+            // Prince TV must be embedded directly — it requires real browser JS, not server-side proxy
+            const finalUrl = isPrinceTV ? data.link : getSecureUrl(data.link, defaultReferer);
             console.log("[Sports] Using iframe embed:", finalUrl);
             setEmbedUrl(finalUrl);
           } else {
             // Fallback
-            const finalUrl = getSecureUrl(match.url, defaultReferer);
+            const finalUrl = isPrinceTV ? match.url : getSecureUrl(match.url, defaultReferer);
             console.log("[Sports] Fallback: using match URL directly:", finalUrl);
             setEmbedUrl(finalUrl);
           }
         } else {
-          const finalUrl = getSecureUrl(match.url, defaultReferer);
+          const finalUrl = isPrinceTV ? match.url : getSecureUrl(match.url, defaultReferer);
           console.log("[Sports] No link returned, using match URL directly:", finalUrl);
           setEmbedUrl(finalUrl);
         }
