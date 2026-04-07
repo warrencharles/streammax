@@ -940,57 +940,17 @@ app.get("/api/stream", async (req, res) => {
     if (!url || typeof url !== "string") return res.status(400).json({ error: "URL is required" });
 
     // PRINCE TV DEFINITIVE RESOLUTION
-    if (url.includes("princetv.online/watch/")) {
-        const idMatch = url.match(/\/watch\/([^/]+)/i);
-        if (idMatch) {
-            const channelId = idMatch[1];
-            
-            // Level 1: Hardcoded Failover for popular channels (verified UUIDs and slugs)
-            const FAILOVER_MAP: Record<string, string> = {
-                "628b250c-29df-42f2-9cb9-df637f1557db": "https://cdnedgch2.azamtvltd.co.tz/tok_eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOiIxNzc1NTkyODM1Iiwic2lwIjoiIiwicGF0aCI6IiIsInNlc3Npb25fY2RuX2lkIjoiNDJlNmI4NzRkMGQwNTMyMyIsInNlc3Npb25faWQiOiIiLCJjbGllbnRfaWQiOiIiLCJkZXZpY2VfaWQiOiIiLCJtYXhfc2Vzc2lvbnMiOjAsInNlc3Npb25fZHVyYXRpb24iOjAsInVybCI6Imh0dHBzOi8vMTAyLjIwOC4yNDQuOSIsInNlc3Npb25fdGltZW91dCI6MCwiYXVkIjoiNyIsInNvdXJjZXMiOlszXX0=.fqkSp5SYwCI8gLdrTeBen9FJHJUIy30VJ_WMvI0C5r6GhC11TFhXGYsdHQqw3DzP8YLmfF2tLNVMpcAnp-nZaA==/live/eds/AzamSport1/DASH/AzamSport1.mpd",
-                "98b50e2d-dc99-43ef-b387-052637738f61": "https://cdnedgch2.azamtvltd.co.tz/live/eds/AzamSport2/DASH/AzamSport2.mpd",
-                "74e1d5a7-bc99-43ef-b387-052637738f72": "https://cdnedgch2.azamtvltd.co.tz/live/eds/AzamSport3/DASH/AzamSport3.mpd",
-                "51c2e3a1-bc99-43ef-b387-052637738f83": "https://cdnedgch2.azamtvltd.co.tz/live/eds/AzamSport4/DASH/AzamSport4.mpd",
-                "be1n-sports-1-hd": "https://www.princetv.online/watch/be1n-sports-1-hd",
-                "supersport-1-hd": "https://www.princetv.online/watch/supersport-1-hd"
-            };
-
-            if (FAILOVER_MAP[channelId]) {
-                const streamUrl = FAILOVER_MAP[channelId];
-                console.log(`[PrinceTV] Match found in FAILOVER_MAP for ID: ${channelId}`);
-                return res.json({ type: "iframe", link: streamUrl });
-            }
-
-            // Level 2: Supabase Resolution (backup)
-            const SUPABASE_URL = "https://qwwyyvutthpolokmvjuf.supabase.co";
-            const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF3d3l5dnV0dGhwb2xva212anVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxNDIyNDksImV4cCI6MjA4ODcxODI0OX0.eN5k0NMxwcRT4t3tIKn_aBq2z2MdL0OFz5R_Jf64VO0";
-
-            try {
-                const response = await axios.get(`${SUPABASE_URL}/rest/v1/channels?id=eq.${channelId}&select=*`, {
-                    headers: { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}` },
-                    timeout: 5000
-                });
-
-                if (response.data && response.data.length > 0) {
-                    const channel = response.data[0];
-                    const streamUrl = channel.stream_url || channel.url || "";
-                    if (streamUrl) {
-                        return res.json({ type: "iframe", link: streamUrl });
-                    }
-                }
-            } catch (e: any) {
-                console.warn(`[PrinceTV] Supabase failover error: ${e.message}`);
-            }
-
-            // Level 3: Fallback Player Injector (resilient failover)
-            console.log(`[PrinceTV] Resolution failed for ${channelId}, returning original URL to be wrapped by frontend.`);
-            return res.json({ type: "iframe", link: url });
-        }
+    if (url.includes("princetv.online")) {
+        // Prince TV streams often use DRM (Widevine/ClearKey). 
+        // We cannot extract the raw .mpd without breaking the DRM config in their player.
+        // We must return the original URL to be loaded safely inside our secure iframe proxy.
+        console.log(`[PrinceTV] Returning native player for ${url} to preserve DRM contexts.`);
+        return res.json({ type: "iframe", link: url });
     }
 
+
     try {
-        const isPrinceTV = url.includes("princetv.online");
-        const referer = isPrinceTV ? "https://www.princetv.online/" : "http://www.fawanews.sc/";
+        const referer = "http://www.fawanews.sc/";
         const response = await axios.get(url, { headers: { "User-Agent": "Mozilla/5.0", "Referer": referer }, timeout: 12000 });
         const html = response.data as string;
         const $ = cheerio.load(html);
@@ -1011,7 +971,7 @@ app.get("/api/stream", async (req, res) => {
                 const m3u8Regex = /(?:source|file|url|src|videos|hls)\s*[:=,]\s*[[ ]*["']((?:https?:\/\/|\/)[^"']+\.(?:m3u8|mpd)[^"']*)["']/i;
                 const match = content.match(m3u8Regex);
                 if (match) {
-                    streamUrl = match[1].startsWith("/") ? (isPrinceTV ? `https://www.princetv.online${match[1]}` : `http://www.fawanews.sc${match[1]}`) : match[1];
+                    streamUrl = match[1].startsWith("/") ? `http://www.fawanews.sc${match[1]}` : match[1];
                     if (streamUrl.includes(".mpd")) {
                         console.log("[Stream] Found DASH stream in script (.mpd), using iframe fallback.");
                         return false; 
