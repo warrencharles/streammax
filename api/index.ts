@@ -934,13 +934,13 @@ app.get("/api/princetv-matches", async (req, res) => {
     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF3d3l5dnV0dGhwb2xva212anVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxNDIyNDksImV4cCI6MjA4ODcxODI0OX0.eN5k0NMxwcRT4t3tIKn_aBq2z2MdL0OFz5R_Jf64VO0";
 
     try {
-        // Try fetching from Supabase table 'channels'
-        const fetchTable = async (table: string) => {
+        // Try fetching from Supabase table 'channels' using the authenticated JWT token!
+        const fetchTable = async (table: string, token: string) => {
             try {
                 const response = await axios.get(`${SUPABASE_URL}/rest/v1/${table}?select=*`, {
                     headers: {
                         "apikey": SUPABASE_KEY,
-                        "Authorization": `Bearer ${SUPABASE_KEY}`
+                        "Authorization": `Bearer ${token}`
                     },
                     timeout: 8000
                 });
@@ -951,7 +951,11 @@ app.get("/api/princetv-matches", async (req, res) => {
             }
         };
 
-        const channelsData = await fetchTable("channels");
+        let channelsData = [];
+        const token = await getPrinceTvToken();
+        if (token) {
+            channelsData = await fetchTable("channels", token);
+        }
         const matches: any[] = [];
         const existingIds = new Set<string>();
 
@@ -975,9 +979,10 @@ app.get("/api/princetv-matches", async (req, res) => {
         // Smart fallback to ensure the list is never empty, and missing standard channels are always injected
         const fallbackChannels = [
             { title: "Azam Sports 1", id: "628b250c-29df-42f2-9cb9-df637f1557db" },
-            { title: "Azam Sports 2", id: "98b50e2d-dc99-43ef-b387-052637738f61" },
-            { title: "Azam Sports 3", id: "74e1d5a7-bc99-43ef-b387-052637738f72" },
-            { title: "Azam Sports HD", id: "51c2e3a1-bc99-43ef-b387-052637738f83" },
+            { title: "Azam Sport 2", id: "0a135393-6c00-4571-8e9d-cb9fe543f900" },
+            { title: "Azam Sport 3", id: "88e59288-e752-45a2-913a-03fcfdb1ef4f" },
+            { title: "Azam Sport 4", id: "4adf8afc-b000-4109-be7e-ae84b8fbaa35" },
+            { title: "Azam Two", id: "1010cf32-c21e-4af6-b3c7-264514673587" },
             { title: "beIN Sports 1", id: "be1n-sports-1-hd" },
             { title: "beIN Sports 2", id: "be1n-sports-2-hd" },
             { title: "beIN Sports 3", id: "be1n-sports-3-hd" },
