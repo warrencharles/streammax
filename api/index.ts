@@ -840,6 +840,41 @@ app.get("/api/princetv-matches", async (req, res) => {
 app.get("/api/stream", async (req, res) => {
     const { url } = req.query;
     if (!url || typeof url !== "string") return res.status(400).json({ error: "URL is required" });
+
+    // PRINCE TV SMART RESOLUTION
+    if (url.includes("princetv.online/watch/")) {
+        const uuidMatch = url.match(/\/watch\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i);
+        if (uuidMatch) {
+            const channelId = uuidMatch[1];
+            const SUPABASE_URL = "https://qwwyyvutthpolokmvjuf.supabase.co";
+            const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF3d3l5dnV0dGhwb2xva212anVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxNDIyNDksImV4cCI6MjA4ODcxODI0OX0.eN5k0NMxwcRT4t3tIKn_aBq2z2MdL0OFz5R_Jf64VO0";
+
+            console.log(`[PrinceTV] Resolving stream for ID: ${channelId}...`);
+            try {
+                const response = await axios.get(`${SUPABASE_URL}/rest/v1/channels?id=eq.${channelId}&select=*`, {
+                    headers: {
+                        "apikey": SUPABASE_KEY,
+                        "Authorization": `Bearer ${SUPABASE_KEY}`
+                    },
+                    timeout: 8000
+                });
+
+                if (response.data && response.data.length > 0) {
+                    const channel = response.data[0];
+                    const streamUrl = channel.stream_url || channel.url || "";
+                    if (streamUrl) {
+                        if (streamUrl.includes(".mpd")) {
+                            return res.json({ type: "iframe", link: url }); // Maintain iframe for DASH if player is needed
+                        }
+                        return res.json({ type: "m3u8", link: `/api/proxy?url=${encodeURIComponent(streamUrl)}&referer=${encodeURIComponent("https://www.princetv.online/")}` });
+                    }
+                }
+            } catch (e: any) {
+                console.error(`[PrinceTV] Supabase Resolve Error: ${e.message}`);
+            }
+        }
+    }
+
     try {
         const isPrinceTV = url.includes("princetv.online");
         const referer = isPrinceTV ? "https://www.princetv.online/" : "http://www.fawanews.sc/";
