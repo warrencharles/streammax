@@ -614,8 +614,7 @@ app.get("/api/secure-iframe", async (req, res) => {
                             const player = dashjs.MediaPlayer().create();
                             player.initialize(document.querySelector("#videoPlayer"), url, true);
                             player.updateSettings({
-                                'debug': { 'logLevel': dashjs.Debug.LOG_LEVEL_NONE },
-                                'streaming': { 'lowLatencyEnabled': true }
+                                'debug': { 'logLevel': dashjs.Debug.LOG_LEVEL_NONE }
                             });
                         })();
                     </script>
@@ -907,7 +906,7 @@ app.get("/api/stream", async (req, res) => {
             if (FAILOVER_MAP[channelId]) {
                 const streamUrl = FAILOVER_MAP[channelId];
                 console.log(`[PrinceTV] Match found in FAILOVER_MAP for ID: ${channelId}`);
-                return res.json({ type: "iframe", link: `/api/secure-iframe?url=${encodeURIComponent(streamUrl)}&referer=${encodeURIComponent("https://www.princetv.online/")}` });
+                return res.json({ type: "iframe", link: streamUrl });
             }
 
             // Level 2: Supabase Resolution (backup)
@@ -924,7 +923,7 @@ app.get("/api/stream", async (req, res) => {
                     const channel = response.data[0];
                     const streamUrl = channel.stream_url || channel.url || "";
                     if (streamUrl) {
-                        return res.json({ type: "iframe", link: `/api/secure-iframe?url=${encodeURIComponent(streamUrl)}&referer=${encodeURIComponent("https://www.princetv.online/")}` });
+                        return res.json({ type: "iframe", link: streamUrl });
                     }
                 }
             } catch (e: any) {
@@ -932,8 +931,8 @@ app.get("/api/stream", async (req, res) => {
             }
 
             // Level 3: Fallback Player Injector (resilient failover)
-            console.log(`[PrinceTV] Resolution failed for ${channelId}, returning resilient player bridge...`);
-            return res.json({ type: "iframe", link: `/api/secure-iframe?url=${encodeURIComponent(url)}&referer=${encodeURIComponent("https://www.princetv.online/")}` });
+            console.log(`[PrinceTV] Resolution failed for ${channelId}, returning original URL to be wrapped by frontend.`);
+            return res.json({ type: "iframe", link: url });
         }
     }
 
