@@ -128,6 +128,8 @@ const App: React.FC = () => {
   const [serverIndex, setServerIndex] = useState(0);
   const [totalServers, setTotalServers] = useState(0);
   const [isSwitchingServer, setIsSwitchingServer] = useState(false);
+  const [isModalSearchOpen, setIsModalSearchOpen] = useState(false);
+  const [modalSearchQuery, setModalSearchQuery] = useState("");
   const sidebarRef = useRef<HTMLDivElement>(null);
 
 
@@ -171,6 +173,20 @@ const App: React.FC = () => {
       sidebarRef.current.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }, [selectedItem?.id, selectedMatch?.url]);
+
+  // Disable background scroll when modal is open
+  useEffect(() => {
+    if (selectedItem || selectedMatch) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+      setIsModalSearchOpen(false);
+      setModalSearchQuery("");
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [selectedItem, selectedMatch]);
 
   const fetchSportsData = async (league: string) => {
     setSportsDataLoading(true);
@@ -989,9 +1005,40 @@ const App: React.FC = () => {
 
                       {/* Next Up / Related Section */}
                       <div className="mt-10 space-y-6">
-                        <div className="flex items-center gap-3">
-                          <h3 className="text-[9px] md:text-[10px] font-black text-blue-500 uppercase tracking-[0.3em]">Next Up</h3>
-                          <div className="h-px flex-1 bg-blue-500/10" />
+                        <div className="flex items-center justify-between gap-4">
+                          <div className="flex items-center gap-3 flex-1">
+                            <h3 className="text-[9px] md:text-[10px] font-black text-blue-500 uppercase tracking-[0.3em]">Next Up</h3>
+                            <div className="h-px flex-1 bg-blue-500/10" />
+                          </div>
+                          
+                          {/* Expanding Search Bar */}
+                          <div className="flex items-center gap-2">
+                            <AnimatePresence>
+                              {isModalSearchOpen && (
+                                <motion.div
+                                  initial={{ width: 0, opacity: 0 }}
+                                  animate={{ width: 140, opacity: 1 }}
+                                  exit={{ width: 0, opacity: 0 }}
+                                  className="relative overflow-hidden"
+                                >
+                                  <input
+                                    autoFocus
+                                    type="text"
+                                    placeholder="Search..."
+                                    value={modalSearchQuery}
+                                    onChange={(e) => setModalSearchQuery(e.target.value)}
+                                    className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-1.5 text-[10px] text-white placeholder:text-slate-600 focus:outline-none focus:border-blue-500/50 transition-all font-black uppercase tracking-widest"
+                                  />
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
+                            <button
+                              onClick={() => setIsModalSearchOpen(!isModalSearchOpen)}
+                              className={`p-2 rounded-lg transition-all ${isModalSearchOpen ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/20' : 'bg-white/5 border border-white/5 text-slate-500 hover:text-white'}`}
+                            >
+                              {isModalSearchOpen ? <X className="w-3 h-3" /> : <Search className="w-3 h-3" />}
+                            </button>
+                          </div>
                         </div>
                         
                         <div className="space-y-3">
@@ -1002,48 +1049,81 @@ const App: React.FC = () => {
                             if (selectedMatch) {
                               const isSports2 = activeTab === 'sports2';
                               relatedItems = isSports2 
-                                ? sports2Matches.filter(m => m.url !== selectedMatch.url && (!selectedSports2Category || m.category === selectedSports2Category))
-                                : matches.filter(m => m.url !== selectedMatch.url);
-                              // Limit to 6 items to keep sidebar clean
-                              relatedItems = relatedItems.slice(0, 6);
+                                ? sports2Matches.filter(m => (!selectedSports2Category || m.category === selectedSports2Category))
+                                : matches;
+                              
+                              if (modalSearchQuery) {
+                                relatedItems = relatedItems.filter(m => m.title.toLowerCase().includes(modalSearchQuery.toLowerCase()));
+                              }
                               clickHandler = handleMatchClick;
                             } else if (selectedItem) {
                               relatedItems = selectedItem.type === 'movie' ? movies : tvShows;
-                              relatedItems = relatedItems.filter(i => i.id !== selectedItem.id).slice(0, 6);
+                              if (modalSearchQuery) {
+                                relatedItems = relatedItems.filter(i => i.title.toLowerCase().includes(modalSearchQuery.toLowerCase()));
+                              }
                               clickHandler = handleItemClick;
                             }
 
-                            return relatedItems.map((item, index) => (
-                              <motion.div
-                                key={index}
-                                initial={{ opacity: 0, x: 20 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: index * 0.1 }}
-                                onClick={() => clickHandler(item)}
-                                className="group flex items-center gap-3 p-2 rounded-xl bg-white/5 border border-white/5 hover:bg-blue-500/10 hover:border-blue-500/30 cursor-pointer transition-all active:scale-[0.98]"
-                              >
-                                <div className="relative w-16 h-10 rounded-lg overflow-hidden bg-slate-900 shrink-0">
-                                  <img 
-                                    src={item.poster || `https://picsum.photos/seed/${item.title}/400/225`} 
-                                    alt="" 
-                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                                    referrerPolicy="no-referrer"
-                                  />
-                                  <div className="absolute inset-0 bg-blue-600/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                    <Play className="w-4 h-4 text-white fill-current" />
+                            if (relatedItems.length === 0) {
+                              return (
+                                <div className="py-8 text-center bg-white/5 rounded-xl border border-white/5">
+                                  <p className="text-[8px] font-black text-slate-600 uppercase tracking-[0.2em]">No matches found</p>
+                                </div>
+                              );
+                            }
+
+                            return relatedItems.map((item, index) => {
+                              const isActive = (selectedMatch && item.url === selectedMatch.url) || (selectedItem && item.id === selectedItem.id);
+                              
+                              return (
+                                <motion.div
+                                  key={index}
+                                  initial={{ opacity: 0, x: 20 }}
+                                  animate={{ opacity: 1, x: 0 }}
+                                  transition={{ delay: index * 0.05 }}
+                                  onClick={() => !isActive && clickHandler(item)}
+                                  className={`group flex items-center gap-3 p-2 rounded-xl transition-all ${isActive ? 'bg-blue-600 border-blue-500 shadow-xl shadow-blue-600/20' : 'bg-white/5 border border-white/5 hover:bg-blue-500/10 hover:border-blue-500/30 cursor-pointer active:scale-[0.98]'}`}
+                                >
+                                  <div className="relative w-16 h-10 rounded-lg overflow-hidden bg-slate-900 shrink-0">
+                                    <img 
+                                      src={item.poster || `https://picsum.photos/seed/${item.title}/400/225`} 
+                                      alt="" 
+                                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                      referrerPolicy="no-referrer"
+                                    />
+                                    <div className={`absolute inset-0 flex items-center justify-center transition-opacity ${isActive ? 'bg-black/20' : 'bg-blue-600/20 opacity-0 group-hover:opacity-100'}`}>
+                                      {isActive ? (
+                                        <div className="flex gap-0.5">
+                                          <div className="w-0.5 h-3 bg-white animate-[bounce_1s_infinite]" style={{ animationDelay: '0s' }} />
+                                          <div className="w-0.5 h-3 bg-white animate-[bounce_1s_infinite]" style={{ animationDelay: '0.2s' }} />
+                                          <div className="w-0.5 h-3 bg-white animate-[bounce_1s_infinite]" style={{ animationDelay: '0.4s' }} />
+                                        </div>
+                                      ) : (
+                                        <Play className="w-4 h-4 text-white fill-current" />
+                                      )}
+                                    </div>
                                   </div>
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                  <h4 className="text-[10px] font-black text-white uppercase tracking-tight truncate group-hover:text-blue-400 transition-colors">
-                                    {item.title}
-                                  </h4>
-                                  <p className="text-[8px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">
-                                    {item.category || item.type || "SPORTS"}
-                                  </p>
-                                </div>
-                                <ChevronRight className="w-4 h-4 text-slate-700 group-hover:text-blue-500 transition-colors" />
-                              </motion.div>
-                            ));
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-2">
+                                      <h4 className={`text-[10px] font-black uppercase tracking-tight truncate transition-colors ${isActive ? 'text-white' : 'text-white group-hover:text-blue-400'}`}>
+                                        {item.title}
+                                      </h4>
+                                      {isActive && (
+                                        <span className="shrink-0 px-1.5 py-0.5 rounded-[4px] bg-white text-blue-600 text-[6px] font-black uppercase tracking-widest leading-none">
+                                          NOW PLAYING
+                                        </span>
+                                      )}
+                                    </div>
+                                    <p className={`text-[8px] font-bold uppercase tracking-widest mt-0.5 ${isActive ? 'text-blue-200' : 'text-slate-500'}`}>
+                                      {item.category || item.type || "SPORTS"}
+                                    </p>
+                                  </div>
+                                  {!isActive && (
+                                    <ChevronRight className="w-4 h-4 text-slate-700 group-hover:text-blue-500 transition-colors" />
+                                  )}
+                                </motion.div>
+                              );
+                            });
                           })()}
                         </div>
                       </div>
