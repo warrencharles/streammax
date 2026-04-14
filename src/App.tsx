@@ -16,7 +16,9 @@ import {
   Github,
   MessageCircle,
   Zap,
-  Calendar
+  Calendar,
+  AlertCircle,
+  RotateCcw
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import Hls from "hls.js";
@@ -130,6 +132,7 @@ const App: React.FC = () => {
   const [isSwitchingServer, setIsSwitchingServer] = useState(false);
   const [isModalSearchOpen, setIsModalSearchOpen] = useState(false);
   const [modalSearchQuery, setModalSearchQuery] = useState("");
+  const [showSwitchPrompt, setShowSwitchPrompt] = useState(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
 
 
@@ -168,6 +171,7 @@ const App: React.FC = () => {
   }, [activeTab]);
 
   // Disable background scroll when modal is open
+  // Disable background scroll when modal is open
   useEffect(() => {
     if (selectedItem || selectedMatch) {
       document.documentElement.classList.add('modal-open');
@@ -180,6 +184,20 @@ const App: React.FC = () => {
       document.documentElement.classList.remove('modal-open');
     };
   }, [selectedItem, selectedMatch]);
+
+  // Watchdog for stream fetching timeout
+  useEffect(() => {
+    let timeout: NodeJS.Timeout;
+    if (fetchingStream) {
+      setShowSwitchPrompt(false);
+      timeout = setTimeout(() => {
+        setShowSwitchPrompt(true);
+      }, 7000); // Show switch server prompt after 7 seconds
+    } else {
+      setShowSwitchPrompt(false);
+    }
+    return () => clearTimeout(timeout);
+  }, [fetchingStream]);
 
   const fetchSportsData = async (league: string) => {
     setSportsDataLoading(true);
@@ -466,6 +484,22 @@ const App: React.FC = () => {
     }
   };
 
+  const tryNextServer = () => {
+    if (totalServers <= 1) return;
+    const nextIndex = (serverIndex + 1) % totalServers;
+    
+    // Get the current ID needed for fetching
+    // For TV it's the specific episode ID already in the state if we clicked one, 
+    // but for Movies we might need to find the show ID.
+    const currentId = embedUrl?.split('/').pop()?.split('?')[0] || 
+                      streamUrl?.split('id=')[1]?.split('&')[0] ||
+                      itemDetails?.id;
+
+    if (currentId) {
+      handleEpisodeClick(currentId, selectedItem?.type || "movie", nextIndex);
+    }
+  };
+
   const filteredMatches = matches.filter(m =>
     m.title.toLowerCase().includes(sportsSearchQuery.toLowerCase())
   );
@@ -567,14 +601,14 @@ const App: React.FC = () => {
 
 
         {/* Content Sections */}
-        <div className="space-y-16">
+        <div className="space-y-10 md:space-y-14">
           {activeTab !== 'sports' && searchQuery.length > 1 ? (
             <section>
               <div className="flex items-center gap-4 mb-8">
                 <h3 className="text-2xl font-black text-white uppercase tracking-tighter">Search Results</h3>
                 <div className="h-px flex-1 bg-white/5" />
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4">
                 {searchResults.map((item, index) => (
                   <MediaCard key={index} item={item} onClick={() => handleItemClick(item)} />
                 ))}
@@ -588,7 +622,7 @@ const App: React.FC = () => {
                 </h3>
                 <div className="h-px flex-1 bg-white/5" />
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4">
                 {loading ? (
                   Array.from({ length: 12 }).map((_, i) => (
                     <div key={i} className="h-[250px] rounded-[16px] bg-slate-800/50 animate-pulse border border-white/5" />
@@ -696,7 +730,7 @@ const App: React.FC = () => {
                 ))}
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 py-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4 py-4">
                 {loading ? (
                   Array.from({ length: 12 }).map((_, i) => (
                     <div key={i} className="h-[200px] rounded-[16px] bg-white/5 animate-pulse border border-white/5" />
@@ -757,7 +791,7 @@ const App: React.FC = () => {
                     <h3 className="text-2xl font-black text-white uppercase tracking-tighter">🔥 Trending Now</h3>
                     <div className="h-px flex-1 bg-white/5" />
                   </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4">
                     {trending
                       .filter(t => t.type === (activeTab === "movies" ? "movie" : "tv"))
                       .slice(0, 6)
@@ -776,7 +810,7 @@ const App: React.FC = () => {
                   <div className="h-px flex-1 bg-white/5" />
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4">
                   {loading ? (
                     Array.from({ length: 12 }).map((_, i) => (
                       <div key={i} className="h-[250px] rounded-[16px] bg-slate-800/50 animate-pulse border border-white/5" />
@@ -853,9 +887,30 @@ const App: React.FC = () => {
               {/* Player Area (Left on Desktop, Top on Mobile) */}
               <div className="relative flex-[6] md:flex-[7] bg-black group overflow-hidden min-h-[240px] md:min-h-0 aspect-video md:aspect-auto">
                 {fetchingStream ? (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-[#010410]">
-                    <div className="w-10 h-10 border-[3px] border-blue-500/10 border-t-blue-500 rounded-full animate-spin" />
-                    <p className="text-blue-500 font-black uppercase tracking-[0.3em] text-[8px] animate-pulse">Establishing Secure Stream...</p>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-6 bg-[#010410] z-30">
+                    <div className="relative">
+                      <div className="w-12 h-12 border-[3px] border-blue-500/10 border-t-blue-500 rounded-full animate-spin" />
+                      <div className="absolute inset-0 bg-blue-500/20 blur-2xl rounded-full animate-pulse" />
+                    </div>
+                    <div className="text-center space-y-2">
+                       <p className="text-blue-500 font-black uppercase tracking-[0.3em] text-[9px] animate-pulse">Establishing Secure Stream...</p>
+                       <p className="text-slate-500 text-[8px] font-bold uppercase tracking-widest">Server ${serverIndex + 1} of ${totalServers || '?'}</p>
+                    </div>
+
+                    {(showSwitchPrompt || isSwitchingServer) && (
+                      <motion.button
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          tryNextServer();
+                        }}
+                        className="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-[9px] font-black uppercase tracking-[0.2em] shadow-lg shadow-blue-600/30 transition-all flex items-center gap-2 group"
+                      >
+                        <RotateCcw className="w-3.5 h-3.5 group-hover:rotate-180 transition-transform duration-500" />
+                        Try Another Server
+                      </motion.button>
+                    )}
                   </div>
                 ) : (streamUrl && !playerError) ? (
                   <div className="w-full h-full">
@@ -1239,7 +1294,7 @@ const MediaCard: React.FC<{ item: MediaItem; onClick: () => void }> = ({ item, o
           </div>
         </div>
 
-        <div className="p-3 flex-1 flex flex-col justify-between">
+        <div className="p-2.5 flex-1 flex flex-col justify-between">
           <h3 className="text-[11px] font-black text-white group-hover:text-blue-400 transition-colors line-clamp-1 mb-1 leading-tight uppercase tracking-tight">
             {item.title}
           </h3>

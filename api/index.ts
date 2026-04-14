@@ -853,7 +853,8 @@ app.get("/api/source", async (req, res) => {
     };
 
     try {
-        const effectiveListUrl = type === "tv" ? `https://hdtodayz.to/ajax/episode/servers/${id}` : `https://hdtodayz.to/ajax/episode/list/${id}`;
+        // hdtodayz typically treats movies and TV episodes similarly for the server list endpoint
+        const effectiveListUrl = `https://hdtodayz.to/ajax/episode/servers/${id}`;
         console.log(`[Source] Fetching servers from: ${effectiveListUrl}`);
         const listRes = await axios.get(effectiveListUrl, { headers: ajaxHeaders, timeout: 10000 });
         const $ = cheerio.load(listRes.data);
@@ -938,7 +939,7 @@ app.get("/api/princetv-matches", async (req, res) => {
         if (t.includes("sport") || t.includes("bein") || t.includes("supersport") || t.includes("espn") || t.includes("football") || t.includes("laliga") || t.includes("match")) return "Sports";
         if (t.includes("news") || t.includes("al jazeera") || t.includes("bbc") || t.includes("cnn") || t.includes("dw") || t.includes("france 24")) return "News";
         if (t.includes("kid") || t.includes("cartoon") || t.includes("disney") || t.includes("nickelodeon") || t.includes("jimjam")) return "Kids";
-        if (t.includes("movie") || t.includes("cinema") || t.includes("action") || t.includes("hbo") || t.includes("fox")) return "Movies";
+        if (t.includes("movie") || t.includes("cinema") || t.includes("action") || t.includes("hbo") || t.includes("fox")) return "General";
         if (t.includes("tbc") || t.includes("itv") || t.includes("clouds") || t.includes("wasafi") || t.includes("efm") || t.includes("tv3") || t.includes("stv") || t.includes("azam two") || t.includes("zbc")) return "Local";
         return "General";
     };
