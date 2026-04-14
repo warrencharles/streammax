@@ -170,14 +170,14 @@ const App: React.FC = () => {
   // Disable background scroll when modal is open
   useEffect(() => {
     if (selectedItem || selectedMatch) {
-      document.body.style.overflow = 'hidden';
+      document.documentElement.classList.add('modal-open');
     } else {
-      document.body.style.overflow = 'unset';
+      document.documentElement.classList.remove('modal-open');
       setIsModalSearchOpen(false);
       setModalSearchQuery("");
     }
     return () => {
-      document.body.style.overflow = 'unset';
+      document.documentElement.classList.remove('modal-open');
     };
   }, [selectedItem, selectedMatch]);
 
@@ -940,8 +940,12 @@ const App: React.FC = () => {
               {/* Info Sidebar (Right on Desktop, Bottom on Mobile) */}
               <div className="relative flex-[4] md:flex-[3] flex flex-col bg-[#050a18]/40 backdrop-blur-md border-t md:border-t-0 md:border-l border-white/5 h-full overflow-hidden">
                 
-                {/* 1. Main Info Scroll Area (Title, Desc, Episodes) */}
-                <div className="flex-1 overflow-y-auto no-scrollbar flex flex-col h-full">
+                {/* Unified Scroll Area */}
+                <div 
+                  ref={sidebarRef}
+                  className="flex-1 overflow-y-auto no-scrollbar [mask-image:linear-gradient(to_bottom,transparent,black_40px,black_calc(100%-40px),transparent)]"
+                >
+                  {/* 1. Main Info (Title, Desc, Episodes) */}
                   <div className="p-6 md:p-10 pb-0">
                     {!itemDetails && !selectedMatch ? (
                       <div className="space-y-6 animate-pulse">
@@ -997,11 +1001,11 @@ const App: React.FC = () => {
                     )}
                   </div>
 
-                  {/* 2. Static Next Up Header + Search (Sticky within this scroll area) */}
-                  <div className="sticky top-0 bg-[#050a18] z-30 px-6 md:px-10 py-5 border-b border-white/5">
+                  {/* 2. Sticky Header + Search (Locks to top when scrolled) */}
+                  <div className="sticky top-0 bg-[#050a18] z-30 px-6 md:px-10 py-5 border-b border-white/5 shadow-[0_10px_30px_rgba(0,0,0,0.8)]">
                     <div className="flex items-center justify-between gap-4">
                       <div className="flex items-center gap-3 flex-1">
-                        <h3 className="text-[9px] md:text-[10px] font-black text-blue-500 uppercase tracking-[0.3em]">Next Up</h3>
+                        <h4 className="text-[9px] md:text-[10px] font-black text-blue-500 uppercase tracking-[0.3em]">Next Up</h4>
                         <div className="h-px flex-1 bg-blue-500/10" />
                       </div>
                       
@@ -1036,96 +1040,91 @@ const App: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* 3. Scrollable List Area with Fade Effect */}
-                  <div 
-                    ref={sidebarRef}
-                    className="flex-1 overflow-y-auto no-scrollbar p-6 md:p-10 [mask-image:linear-gradient(to_bottom,transparent,black_30px,black_calc(100%-30px),transparent)]"
-                  >
-                    <div className="space-y-3 pb-8">
-                      {(() => {
-                        let relatedItems: any[] = [];
-                        let clickHandler: (item: any) => void = () => {};
+                  {/* 3. Item List (Shares the same scroll container) */}
+                  <div className="p-6 md:p-10 pt-6 space-y-3 pb-20">
+                    {(() => {
+                      let relatedItems: any[] = [];
+                      let clickHandler: (item: any) => void = () => {};
 
-                        if (selectedMatch) {
-                          const isSports2 = activeTab === 'sports2';
-                          relatedItems = isSports2 
-                            ? sports2Matches.filter(m => (!selectedSports2Category || m.category === selectedSports2Category))
-                            : matches;
-                          
-                          if (modalSearchQuery) {
-                            relatedItems = relatedItems.filter(m => m.title.toLowerCase().includes(modalSearchQuery.toLowerCase()));
-                          }
-                          clickHandler = handleMatchClick;
-                        } else if (selectedItem) {
-                          relatedItems = selectedItem.type === 'movie' ? movies : tvShows;
-                          if (modalSearchQuery) {
-                            relatedItems = relatedItems.filter(i => i.title.toLowerCase().includes(modalSearchQuery.toLowerCase()));
-                          }
-                          clickHandler = handleItemClick;
+                      if (selectedMatch) {
+                        const isSports2 = activeTab === 'sports2';
+                        relatedItems = isSports2 
+                          ? sports2Matches.filter(m => (!selectedSports2Category || m.category === selectedSports2Category))
+                          : matches;
+                        
+                        if (modalSearchQuery) {
+                          relatedItems = relatedItems.filter(m => m.title.toLowerCase().includes(modalSearchQuery.toLowerCase()));
                         }
+                        clickHandler = handleMatchClick;
+                      } else if (selectedItem) {
+                        relatedItems = selectedItem.type === 'movie' ? movies : tvShows;
+                        if (modalSearchQuery) {
+                          relatedItems = relatedItems.filter(i => i.title.toLowerCase().includes(modalSearchQuery.toLowerCase()));
+                        }
+                        clickHandler = handleItemClick;
+                      }
 
-                        if (relatedItems.length === 0) {
-                          return (
-                            <div className="py-8 text-center bg-white/5 rounded-xl border border-white/5">
-                              <p className="text-[8px] font-black text-slate-600 uppercase tracking-[0.2em]">No matches found</p>
+                      if (relatedItems.length === 0) {
+                        return (
+                          <div className="py-8 text-center bg-white/5 rounded-xl border border-white/5">
+                            <p className="text-[8px] font-black text-slate-600 uppercase tracking-[0.2em]">No matches found</p>
+                          </div>
+                        );
+                      }
+
+                      return relatedItems.map((item, index) => {
+                        const isActive = (selectedMatch && item.url === selectedMatch.url) || (selectedItem && item.id === selectedItem.id);
+                        
+                        return (
+                          <motion.div
+                            key={index}
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: index * 0.05 }}
+                            onClick={() => !isActive && clickHandler(item)}
+                            className={`group flex items-center gap-3 p-2 rounded-xl transition-all ${isActive ? 'bg-blue-600 border-blue-500 shadow-xl shadow-blue-600/20' : 'bg-white/5 border border-white/5 hover:bg-blue-500/10 hover:border-blue-500/30 cursor-pointer active:scale-[0.98]'}`}
+                          >
+                            <div className="relative w-16 h-10 rounded-lg overflow-hidden bg-slate-900 shrink-0">
+                              <img 
+                                src={item.poster || `https://picsum.photos/seed/${item.title}/400/225`} 
+                                alt="" 
+                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                referrerPolicy="no-referrer"
+                              />
+                              <div className={`absolute inset-0 flex items-center justify-center transition-opacity ${isActive ? 'bg-black/20' : 'bg-blue-600/20 opacity-0 group-hover:opacity-100'}`}>
+                                {isActive ? (
+                                  <div className="flex gap-0.5">
+                                    <div className="w-0.5 h-3 bg-white animate-[bounce_1s_infinite]" style={{ animationDelay: '0s' }} />
+                                    <div className="w-0.5 h-3 bg-white animate-[bounce_1s_infinite]" style={{ animationDelay: '0.2s' }} />
+                                    <div className="w-0.5 h-3 bg-white animate-[bounce_1s_infinite]" style={{ animationDelay: '0.4s' }} />
+                                  </div>
+                                ) : (
+                                  <Play className="w-4 h-4 text-white fill-current" />
+                                )}
+                              </div>
                             </div>
-                          );
-                        }
-
-                        return relatedItems.map((item, index) => {
-                          const isActive = (selectedMatch && item.url === selectedMatch.url) || (selectedItem && item.id === selectedItem.id);
-                          
-                          return (
-                            <motion.div
-                              key={index}
-                              initial={{ opacity: 0, x: 20 }}
-                              animate={{ opacity: 1, x: 0 }}
-                              transition={{ delay: index * 0.05 }}
-                              onClick={() => !isActive && clickHandler(item)}
-                              className={`group flex items-center gap-3 p-2 rounded-xl transition-all ${isActive ? 'bg-blue-600 border-blue-500 shadow-xl shadow-blue-600/20' : 'bg-white/5 border border-white/5 hover:bg-blue-500/10 hover:border-blue-500/30 cursor-pointer active:scale-[0.98]'}`}
-                            >
-                              <div className="relative w-16 h-10 rounded-lg overflow-hidden bg-slate-900 shrink-0">
-                                <img 
-                                  src={item.poster || `https://picsum.photos/seed/${item.title}/400/225`} 
-                                  alt="" 
-                                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                                  referrerPolicy="no-referrer"
-                                />
-                                <div className={`absolute inset-0 flex items-center justify-center transition-opacity ${isActive ? 'bg-black/20' : 'bg-blue-600/20 opacity-0 group-hover:opacity-100'}`}>
-                                  {isActive ? (
-                                    <div className="flex gap-0.5">
-                                      <div className="w-0.5 h-3 bg-white animate-[bounce_1s_infinite]" style={{ animationDelay: '0s' }} />
-                                      <div className="w-0.5 h-3 bg-white animate-[bounce_1s_infinite]" style={{ animationDelay: '0.2s' }} />
-                                      <div className="w-0.5 h-3 bg-white animate-[bounce_1s_infinite]" style={{ animationDelay: '0.4s' }} />
-                                    </div>
-                                  ) : (
-                                    <Play className="w-4 h-4 text-white fill-current" />
-                                  )}
-                                </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2">
+                                <h4 className={`text-[10px] font-black uppercase tracking-tight truncate transition-colors ${isActive ? 'text-white' : 'text-white group-hover:text-blue-400'}`}>
+                                  {item.title}
+                                </h4>
+                                {isActive && (
+                                  <span className="shrink-0 px-1.5 py-0.5 rounded-[4px] bg-white text-blue-600 text-[6px] font-black uppercase tracking-widest leading-none">
+                                    NOW PLAYING
+                                  </span>
+                                )}
                               </div>
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2">
-                                  <h4 className={`text-[10px] font-black uppercase tracking-tight truncate transition-colors ${isActive ? 'text-white' : 'text-white group-hover:text-blue-400'}`}>
-                                    {item.title}
-                                  </h4>
-                                  {isActive && (
-                                    <span className="shrink-0 px-1.5 py-0.5 rounded-[4px] bg-white text-blue-600 text-[6px] font-black uppercase tracking-widest leading-none">
-                                      NOW PLAYING
-                                    </span>
-                                  )}
-                                </div>
-                                <p className={`text-[8px] font-bold uppercase tracking-widest mt-0.5 ${isActive ? 'text-blue-200' : 'text-slate-500'}`}>
-                                  {item.category || item.type || "SPORTS"}
-                                </p>
-                              </div>
-                              {!isActive && (
-                                <ChevronRight className="w-4 h-4 text-slate-700 group-hover:text-blue-500 transition-colors" />
-                              )}
-                            </motion.div>
-                          );
-                        });
-                      })()}
-                    </div>
+                              <p className={`text-[8px] font-bold uppercase tracking-widest mt-0.5 ${isActive ? 'text-blue-200' : 'text-slate-500'}`}>
+                                {item.category || item.type || "SPORTS"}
+                              </p>
+                            </div>
+                            {!isActive && (
+                              <ChevronRight className="w-4 h-4 text-slate-700 group-hover:text-blue-500 transition-colors" />
+                            )}
+                          </motion.div>
+                        );
+                      });
+                    })()}
                   </div>
                 </div>
 
