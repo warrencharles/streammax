@@ -933,6 +933,16 @@ app.get("/api/princetv-matches", async (req, res) => {
     const SUPABASE_URL = "https://qwwyyvutthpolokmvjuf.supabase.co";
     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF3d3l5dnV0dGhwb2xva212anVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxNDIyNDksImV4cCI6MjA4ODcxODI0OX0.eN5k0NMxwcRT4t3tIKn_aBq2z2MdL0OFz5R_Jf64VO0";
 
+    const inferCategory = (title: string): string => {
+        const t = title.toLowerCase();
+        if (t.includes("sport") || t.includes("bein") || t.includes("supersport") || t.includes("espn") || t.includes("football") || t.includes("laliga") || t.includes("match")) return "Sports";
+        if (t.includes("news") || t.includes("al jazeera") || t.includes("bbc") || t.includes("cnn") || t.includes("dw") || t.includes("france 24")) return "News";
+        if (t.includes("kid") || t.includes("cartoon") || t.includes("disney") || t.includes("nickelodeon") || t.includes("jimjam")) return "Kids";
+        if (t.includes("movie") || t.includes("cinema") || t.includes("action") || t.includes("hbo") || t.includes("fox")) return "Movies";
+        if (t.includes("tbc") || t.includes("itv") || t.includes("clouds") || t.includes("wasafi") || t.includes("efm") || t.includes("tv3") || t.includes("stv") || t.includes("azam two") || t.includes("zbc")) return "Local";
+        return "General";
+    };
+
     try {
         // Try fetching from Supabase table 'channels' using the authenticated JWT token!
         const fetchTable = async (table: string, token: string) => {
@@ -970,7 +980,8 @@ app.get("/api/princetv-matches", async (req, res) => {
                     title: title,
                     sport: "Sports 2",
                     url: url,
-                    poster: poster
+                    poster: poster,
+                    category: item.category || inferCategory(title)
                 });
                 existingIds.add(channelId);
             }
@@ -978,17 +989,21 @@ app.get("/api/princetv-matches", async (req, res) => {
 
         // Smart fallback to ensure the list is never empty, and missing standard channels are always injected
         const fallbackChannels = [
-            { title: "Azam Sports 1", id: "628b250c-29df-42f2-9cb9-df637f1557db" },
-            { title: "Azam Sport 2", id: "0a135393-6c00-4571-8e9d-cb9fe543f900" },
-            { title: "Azam Sport 3", id: "88e59288-e752-45a2-913a-03fcfdb1ef4f" },
-            { title: "Azam Sport 4", id: "4adf8afc-b000-4109-be7e-ae84b8fbaa35" },
-            { title: "Azam Two", id: "1010cf32-c21e-4af6-b3c7-264514673587" },
-            { title: "beIN Sports 1", id: "be1n-sports-1-hd" },
-            { title: "beIN Sports 2", id: "be1n-sports-2-hd" },
-            { title: "beIN Sports 3", id: "be1n-sports-3-hd" },
-            { title: "SuperSport 1", id: "supersport-1-hd" },
-            { title: "SuperSport 2", id: "supersport-2-hd" },
-            { title: "SuperSport 3", id: "supersport-3-hd" }
+            { title: "Azam Sports 1", id: "628b250c-29df-42f2-9cb9-df637f1557db", category: "Sports" },
+            { title: "Azam Sport 2", id: "0a135393-6c00-4571-8e9d-cb9fe543f900", category: "Sports" },
+            { title: "Azam Sport 3", id: "88e59288-e752-45a2-913a-03fcfdb1ef4f", category: "Sports" },
+            { title: "Azam Sport 4", id: "4adf8afc-b000-4109-be7e-ae84b8fbaa35", category: "Sports" },
+            { title: "Azam Two", id: "1010cf32-c21e-4af6-b3c7-264514673587", category: "Local" },
+            { title: "beIN Sports 1", id: "be1n-sports-1-hd", category: "Sports" },
+            { title: "beIN Sports 2", id: "be1n-sports-2-hd", category: "Sports" },
+            { title: "beIN Sports 3", id: "be1n-sports-3-hd", category: "Sports" },
+            { title: "SuperSport 1", id: "supersport-1-hd", category: "Sports" },
+            { title: "SuperSport 2", id: "supersport-2-hd", category: "Sports" },
+            { title: "SuperSport 3", id: "supersport-3-hd", category: "Sports" },
+            { title: "Discovery Channel", id: "discovery-channel", category: "General" },
+            { title: "National Geographic", id: "nat-geo", category: "General" },
+            { title: "BBC News", id: "bbc-news", category: "News" },
+            { title: "Al Jazeera", id: "al-jazeera", category: "News" }
         ];
 
         fallbackChannels.forEach(ch => {
@@ -997,7 +1012,8 @@ app.get("/api/princetv-matches", async (req, res) => {
                     title: ch.title,
                     sport: "Sports 2",
                     url: `https://www.princetv.online/watch/${ch.id}`,
-                    poster: `https://picsum.photos/seed/${ch.id}/400/225`
+                    poster: `https://picsum.photos/seed/${ch.id}/400/225`,
+                    category: ch.category
                 });
             }
         });

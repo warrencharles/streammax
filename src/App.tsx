@@ -25,6 +25,7 @@ interface Match {
   title: string;
   url: string;
   poster?: string;
+  category?: string;
 }
 
 interface MediaItem {
@@ -122,10 +123,12 @@ const App: React.FC = () => {
   const [sportsSearchQuery, setSportsSearchQuery] = useState("");
   const [sports2Matches, setSports2Matches] = useState<Match[]>([]);
   const [sports2SearchQuery, setSports2SearchQuery] = useState("");
+  const [selectedSports2Category, setSelectedSports2Category] = useState<string | null>(null);
   const [sportsDataLoading, setSportsDataLoading] = useState(false);
   const [serverIndex, setServerIndex] = useState(0);
   const [totalServers, setTotalServers] = useState(0);
   const [isSwitchingServer, setIsSwitchingServer] = useState(false);
+  const sidebarRef = useRef<HTMLDivElement>(null);
 
 
   const genres = [
@@ -147,6 +150,8 @@ const App: React.FC = () => {
     { id: "western", name: "Western" },
   ];
 
+  const sports2Categories = ["Sports", "News", "Local", "Movies", "Kids", "General"];
+
   useEffect(() => {
     if (activeTab === "sports") fetchMatches();
     if (activeTab === "sports2") fetchSports2Matches();
@@ -159,6 +164,13 @@ const App: React.FC = () => {
       fetchTrending();
     }
   }, [activeTab]);
+
+  // Reset sidebar scroll when selected item changes
+  useEffect(() => {
+    if (sidebarRef.current) {
+      sidebarRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [selectedItem?.id, selectedMatch?.url]);
 
   const fetchSportsData = async (league: string) => {
     setSportsDataLoading(true);
@@ -543,52 +555,7 @@ const App: React.FC = () => {
           </div>
         )}
 
-        {/* Hero Section */}
-        <div className="mb-12 md:mb-20 relative rounded-[2rem] md:rounded-[3rem] overflow-hidden group min-h-[350px] md:min-h-[500px] flex items-center">
-          <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-[#020617] via-[#020617]/80 md:via-[#020617]/40 to-transparent z-10" />
-          {activeTab === "sports" ? (
-            <SportsHeroAnimation />
-          ) : (
-            <motion.img
-              key={activeTab}
-              initial={{ opacity: 0, scale: 1.1 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 1.2, ease: "easeOut" }}
-              src={activeTab === "movies" ? "https://picsum.photos/seed/movies/1920/1080" : "https://picsum.photos/seed/series/1920/1080"}
-              alt="Hero"
-              className="absolute inset-0 w-full h-full object-cover"
-              referrerPolicy="no-referrer"
-            />
-          )}
-          <div className="relative z-20 px-6 md:px-16 py-12 md:py-20 max-w-2xl mt-auto md:mt-0">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-            >
-              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-500 text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] mb-4 md:mb-6">
-                <Activity className="w-3 h-3 animate-pulse" />
-                Trending {activeTab === "sports" ? "Match" : activeTab === "movies" ? "Movie" : "Series"}
-              </span>
-              <h2 className="text-3xl md:text-7xl font-black text-white mb-4 md:mb-8 leading-[1] tracking-tighter italic">
-                {activeTab === "sports" ? "ULTIMATE SPORTS" : activeTab === "movies" ? "CINEMATIC MAGIC" : "EPIC STORIES"}
-              </h2>
-              <p className="text-slate-400 text-sm md:text-xl mb-8 md:mb-12 leading-relaxed font-medium italic max-w-lg">
-                Exclusive high-definition delivery of {activeTab === "sports" ? "the world's biggest matches" : "global entertainment"} with zero lag and premium sound.
-              </p>
-              <div className="flex flex-wrap gap-3 md:gap-5">
-                <button className="px-6 md:px-10 py-3 md:py-5 bg-blue-500 hover:bg-blue-600 text-white text-[10px] md:text-xs font-black uppercase tracking-widest rounded-2xl transition-all shadow-[0_0_40px_rgba(59,130,246,0.3)] flex items-center gap-3 group active:scale-95">
-                  <Play className="w-4 h-4 md:w-5 md:h-5 fill-current" />
-                  Stream Now
-                  <ChevronRight className="w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-1 transition-transform" />
-                </button>
-                <button className="px-6 md:px-10 py-3 md:py-5 bg-white/5 hover:bg-white/10 text-slate-300 text-[10px] md:text-xs font-black uppercase tracking-widest rounded-2xl transition-all border border-white/5 backdrop-blur-3xl">
-                  {activeTab === "sports" ? "Full Schedule" : "Add to List"}
-                </button>
-              </div>
-            </motion.div>
-          </div>
-        </div>
+
 
         {/* Content Sections */}
         <div className="space-y-16">
@@ -700,14 +667,40 @@ const App: React.FC = () => {
                   </div>
                 </div>
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 py-8">
+
+              {/* Sports 2 Category Bar */}
+              <div className="mb-8 overflow-x-auto no-scrollbar flex items-center gap-2 pb-2">
+                <button
+                  onClick={() => setSelectedSports2Category(null)}
+                  className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all border shrink-0 ${!selectedSports2Category ? 'bg-blue-500 border-blue-500 text-white shadow-lg shadow-blue-500/30' : 'bg-white/5 border-white/5 text-slate-500 hover:text-white'}`}
+                >
+                  All
+                </button>
+                {sports2Categories.map(cat => (
+                  <button
+                    key={cat}
+                    onClick={() => setSelectedSports2Category(cat)}
+                    className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all border whitespace-nowrap shrink-0 ${selectedSports2Category === cat ? 'bg-blue-500 border-blue-500 text-white shadow-lg shadow-blue-500/30' : 'bg-white/5 border-white/5 text-slate-500 hover:text-white'}`}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 py-4">
                 {loading ? (
                   Array.from({ length: 12 }).map((_, i) => (
                     <div key={i} className="h-[200px] rounded-[16px] bg-white/5 animate-pulse border border-white/5" />
                   ))
-                ) : sports2Matches.filter(m => m.title.toLowerCase().includes(sports2SearchQuery.toLowerCase())).length > 0 ? (
+                ) : sports2Matches.filter(m => 
+                    m.title.toLowerCase().includes(sports2SearchQuery.toLowerCase()) &&
+                    (!selectedSports2Category || m.category === selectedSports2Category)
+                  ).length > 0 ? (
                   sports2Matches
-                    .filter(m => m.title.toLowerCase().includes(sports2SearchQuery.toLowerCase()))
+                    .filter(m => 
+                      m.title.toLowerCase().includes(sports2SearchQuery.toLowerCase()) &&
+                      (!selectedSports2Category || m.category === selectedSports2Category)
+                    )
                     .map((match, index) => (
                       <motion.div
                         key={index}
@@ -729,6 +722,11 @@ const App: React.FC = () => {
                               <Play className="w-6 h-6 text-white fill-current ml-1" />
                             </div>
                           </div>
+                          {match.category && (
+                            <div className="absolute top-2 right-2 px-2 py-0.5 rounded-md bg-black/60 backdrop-blur-md border border-white/10 text-[7px] font-black uppercase text-blue-400">
+                              {match.category}
+                            </div>
+                          )}
                         </div>
                         <h4 className="mt-3 text-[11px] font-bold text-slate-300 group-hover:text-blue-400 transition-colors uppercase tracking-tight line-clamp-1 italic px-1">
                           {match.title}
@@ -737,7 +735,7 @@ const App: React.FC = () => {
                     ))
                 ) : (
                   <div className="col-span-full py-20 bg-white/5 rounded-[2rem] border border-white/5 text-center">
-                    <p className="text-slate-500 text-sm font-black uppercase tracking-widest italic opacity-50">No additional channels available.</p>
+                    <p className="text-slate-500 text-sm font-black uppercase tracking-widest italic opacity-50">No channels found in this category.</p>
                   </div>
                 )}
               </div>
@@ -932,8 +930,12 @@ const App: React.FC = () => {
 
               {/* Info Sidebar (Right on Desktop, Bottom on Mobile) */}
               <div className="relative flex-[4] md:flex-[3] flex flex-col bg-[#050a18]/40 backdrop-blur-md border-t md:border-t-0 md:border-l border-white/5 h-full overflow-hidden">
-
-                <div className="flex-1 overflow-y-auto no-scrollbar p-6 md:p-10">
+                
+                {/* Fading Scroll Mask */}
+                <div 
+                  ref={sidebarRef}
+                  className="flex-1 overflow-y-auto no-scrollbar p-6 md:p-10 [mask-image:linear-gradient(to_bottom,transparent,black_50px,black_calc(100%-50px),transparent)]"
+                >
                   {!itemDetails && !selectedMatch ? (
                     <div className="space-y-6 animate-pulse">
                       <div className="h-2 w-16 bg-white/5 rounded" />
@@ -962,7 +964,7 @@ const App: React.FC = () => {
                       </p>
 
                       {itemDetails?.seasons && itemDetails.seasons.length > 0 && (
-                        <div className="space-y-6 mb-4">
+                        <div className="space-y-6 mb-8">
                           {itemDetails.seasons.map((season) => (
                             <div key={season.id} className="relative">
                               <div className="flex items-center gap-3 mb-4">
@@ -984,6 +986,67 @@ const App: React.FC = () => {
                           ))}
                         </div>
                       )}
+
+                      {/* Next Up / Related Section */}
+                      <div className="mt-10 space-y-6">
+                        <div className="flex items-center gap-3">
+                          <h3 className="text-[9px] md:text-[10px] font-black text-blue-500 uppercase tracking-[0.3em]">Next Up</h3>
+                          <div className="h-px flex-1 bg-blue-500/10" />
+                        </div>
+                        
+                        <div className="space-y-3">
+                          {(() => {
+                            let relatedItems: any[] = [];
+                            let clickHandler: (item: any) => void = () => {};
+
+                            if (selectedMatch) {
+                              const isSports2 = activeTab === 'sports2';
+                              relatedItems = isSports2 
+                                ? sports2Matches.filter(m => m.url !== selectedMatch.url && (!selectedSports2Category || m.category === selectedSports2Category))
+                                : matches.filter(m => m.url !== selectedMatch.url);
+                              // Limit to 6 items to keep sidebar clean
+                              relatedItems = relatedItems.slice(0, 6);
+                              clickHandler = handleMatchClick;
+                            } else if (selectedItem) {
+                              relatedItems = selectedItem.type === 'movie' ? movies : tvShows;
+                              relatedItems = relatedItems.filter(i => i.id !== selectedItem.id).slice(0, 6);
+                              clickHandler = handleItemClick;
+                            }
+
+                            return relatedItems.map((item, index) => (
+                              <motion.div
+                                key={index}
+                                initial={{ opacity: 0, x: 20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: index * 0.1 }}
+                                onClick={() => clickHandler(item)}
+                                className="group flex items-center gap-3 p-2 rounded-xl bg-white/5 border border-white/5 hover:bg-blue-500/10 hover:border-blue-500/30 cursor-pointer transition-all active:scale-[0.98]"
+                              >
+                                <div className="relative w-16 h-10 rounded-lg overflow-hidden bg-slate-900 shrink-0">
+                                  <img 
+                                    src={item.poster || `https://picsum.photos/seed/${item.title}/400/225`} 
+                                    alt="" 
+                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                    referrerPolicy="no-referrer"
+                                  />
+                                  <div className="absolute inset-0 bg-blue-600/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                    <Play className="w-4 h-4 text-white fill-current" />
+                                  </div>
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <h4 className="text-[10px] font-black text-white uppercase tracking-tight truncate group-hover:text-blue-400 transition-colors">
+                                    {item.title}
+                                  </h4>
+                                  <p className="text-[8px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">
+                                    {item.category || item.type || "SPORTS"}
+                                  </p>
+                                </div>
+                                <ChevronRight className="w-4 h-4 text-slate-700 group-hover:text-blue-500 transition-colors" />
+                              </motion.div>
+                            ));
+                          })()}
+                        </div>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -1273,6 +1336,21 @@ const VideoPlayer: React.FC<{ url: string; title: string; onError?: (err: any) =
         playsInline
       />
 
+      {/* Related Content / Controls Fade Effect */}
+      <AnimatePresence>
+        {showControls && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-6 pointer-events-none"
+          >
+            {/* We could put the horizontal carousel back here if the user wanted both, 
+                but they specifically asked for sidebar list now. */}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Custom Controls Overlay */}
       <AnimatePresence>
         {showControls && (
@@ -1337,122 +1415,6 @@ const VideoPlayer: React.FC<{ url: string; title: string; onError?: (err: any) =
           <Play className="w-20 h-20 text-white/20" />
         </div>
       )}
-    </div>
-  );
-};
-
-const FootballPlayer: React.FC = () => {
-  return (
-    <motion.svg
-      viewBox="0 0 200 200"
-      className="w-48 h-48 md:w-64 md:h-64 text-blue-500 drop-shadow-[0_0_20px_rgba(59,130,246,0.5)]"
-      initial="initial"
-      animate="animate"
-    >
-      {/* Ball */}
-      <motion.circle
-        cx="160" cy="170" r="8"
-        fill="currentColor"
-        variants={{
-          animate: {
-            x: [0, 40, 0],
-            y: [0, -40, 0],
-            scale: [1, 1.2, 1],
-            transition: { duration: 2, repeat: Infinity, ease: "easeOut" }
-          }
-        }}
-      />
-      {/* Player Silhouette */}
-      <motion.path
-        d="M60,180 L80,140 L70,100 L90,60 L110,40 L130,60 L120,90 L140,130 L160,165"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        initial={{ d: "M60,180 L80,140 L70,100 L90,60 L110,40 L130,60 L120,90 L140,130 L160,165" }}
-        animate={{
-          d: [
-            "M60,180 L80,140 L70,100 L90,60 L110,40 L130,60 L120,90 L140,130 L160,165",
-            "M60,180 L80,140 L70,100 L90,60 L110,40 L130,60 L120,90 L110,130 L90,160",
-            "M60,180 L80,140 L70,100 L90,60 L110,40 L130,60 L120,90 L140,130 L160,165"
-          ]
-        }}
-        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-      />
-      {/* Head */}
-      <motion.circle
-        cx="110" cy="30" r="12"
-        fill="currentColor"
-        animate={{ y: [0, -5, 0] }}
-        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-      />
-    </motion.svg>
-  );
-};
-
-const SportsHeroAnimation: React.FC = () => {
-  return (
-    <div className="absolute inset-0 overflow-hidden bg-[#020617]">
-      {/* Stadium Floodlight Effect */}
-      <div className="absolute top-0 left-1/4 w-[50%] h-[150%] bg-blue-500/10 blur-[150px] rotate-12 transform -translate-y-1/2" />
-      <div className="absolute top-0 right-1/4 w-[50%] h-[150%] bg-indigo-500/10 blur-[150px] -rotate-12 transform -translate-y-1/2" />
-
-      {/* Modern Pitch Patterns */}
-      <svg className="absolute inset-0 w-full h-full opacity-30" viewBox="0 0 100 100" preserveAspectRatio="none">
-        <pattern id="pitchPattern" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse">
-          <rect width="10" height="10" fill="transparent" />
-          <path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(59,130,246,0.05)" strokeWidth="0.1" />
-        </pattern>
-        <rect width="100" height="100" fill="url(#pitchPattern)" />
-
-        {/* Central Dynamic Circle */}
-        <motion.circle
-          cx="50" cy="50" r="30"
-          initial={{ r: 30, opacity: 0.1 }}
-          stroke="rgba(59,130,246,0.1)" strokeWidth="0.1" fill="none"
-          animate={{ r: [30, 32, 30], opacity: [0.1, 0.2, 0.1] }}
-          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-        />
-      </svg>
-
-      {/* Data Streams (Matrix-like sports stats) */}
-      <div className="absolute inset-x-0 top-0 h-full overflow-hidden opacity-20 pointer-events-none">
-        {Array.from({ length: 15 }).map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute text-[8px] font-black text-blue-500/40 uppercase tracking-widest whitespace-nowrap"
-            initial={{ top: -100, left: `${i * 7}%` }}
-            animate={{ top: "110%" }}
-            transition={{ duration: 15 + Math.random() * 20, repeat: Infinity, ease: "linear", delay: i * 2 }}
-          >
-            {[...Array(20)].map(() => "GOAL SCORE MATCH WIN STADIUM DATA ").join(" ")}
-          </motion.div>
-        ))}
-      </div>
-
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          transition={{ duration: 1.2, ease: "easeOut" }}
-          className="relative z-10 flex flex-col items-center"
-        >
-          <div className="relative mb-8">
-            <FootballPlayer />
-            <div className="absolute inset-0 bg-blue-500/20 blur-3xl rounded-full -z-10 animate-pulse" />
-          </div>
-
-          <div className="flex items-center gap-8 opacity-40 grayscale group-hover:grayscale-0 transition-all duration-1000">
-            <Trophy className="w-12 h-12 text-blue-500" />
-            <Activity className="w-12 h-12 text-indigo-500" />
-            <Zap className="w-12 h-12 text-blue-400" />
-          </div>
-        </motion.div>
-      </div>
-
-      {/* Immersive Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-transparent to-[#020617]/40 z-20" />
     </div>
   );
 };
