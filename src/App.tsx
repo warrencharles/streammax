@@ -100,7 +100,7 @@ const getSecureUrl = (url: string, referer?: string) => {
 };
 
 const App: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'movies' | 'series' | 'sports' | 'sports2'>('movies');
+  const [activeTab, setActiveTab] = useState<'movies' | 'series' | 'sports' | 'sports2'>('sports2');
   const [sportsStandings, setSportsStandings] = useState<SportStanding[]>([]);
   const [sportsMatches, setSportsMatches] = useState<SportMatch[]>([]);
   const [activeSportSubTab, setActiveSportSubTab] = useState<'schedules' | 'standings'>('schedules');

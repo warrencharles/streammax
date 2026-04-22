@@ -857,22 +857,33 @@ app.get("/api/source", async (req, res) => {
         const effectiveListUrl = type === "movie" 
             ? `https://hdtodayz.to/ajax/movie/servers/${id}` 
             : `https://hdtodayz.to/ajax/episode/servers/${id}`;
+        
         console.log(`[Source] Fetching servers from: ${effectiveListUrl}`);
         const listRes = await axios.get(effectiveListUrl, { headers: ajaxHeaders, timeout: 10000 });
         const $ = cheerio.load(listRes.data);
-        const servers = $(".nav-item a[data-id]").map((_, el) => ({ id: $(el).attr("data-id")!, name: $(el).text().trim() || $(el).attr("title") || "Unknown" })).get();
+        const servers = $(".nav-item a[data-id]").map((_, el) => ({ 
+            id: $(el).attr("data-id")!, 
+            name: $(el).text().trim() || $(el).attr("title") || "Unknown" 
+        })).get();
 
         console.log(`[Source] Found ${servers.length} servers: ${servers.map(s => s.name).join(", ")}`);
-        if (servers.length === 0) return res.status(404).json({ error: "No servers found" });
+        if (servers.length === 0) return res.status(404).json({ error: "No servers found on hdtodayz.to" });
 
         for (let i = serverIndex; i < servers.length; i++) {
             const server = servers[i];
             try {
-                console.log(`[Source] Fetching link for server: ${server.name} (${server.id})`);
-                const srcRes = await axios.get(`https://hdtodayz.to/ajax/episode/sources/${server.id}`, { headers: ajaxHeaders, timeout: 10000 });
+                console.log(`[Source] Fetching link for server: ${server.name} (${server.id}) | type: ${type}`);
+                
+                // CRITICAL FIX: Use movie endpoint for movies, episode for episodes
+                const sourceUrl = type === "movie" 
+                    ? `https://hdtodayz.to/ajax/movie/sources/${server.id}`
+                    : `https://hdtodayz.to/ajax/episode/sources/${server.id}`;
+
+                const srcRes = await axios.get(sourceUrl, { headers: ajaxHeaders, timeout: 10000 });
                 const embedLink = srcRes.data?.link;
+                
                 if (!embedLink) {
-                    console.log(`[Source] Server ${server.name} returned NO link`);
+                    console.log(`[Source] Server ${server.name} returned NO link. Response:`, srcRes.data);
                     continue;
                 }
 
@@ -880,16 +891,26 @@ app.get("/api/source", async (req, res) => {
 
                 if (embedLink.includes("videostr.net") || embedLink.includes("rabbitstream.net") || embedLink.includes("megacloud.tv") || embedLink.includes("upcloud")) {
                     console.log(`[Source] Detected HLS-capable server: ${server.name}. Attempting to extract M3U8...`);
-                    const embedPage = await axios.get(embedLink, { headers: { "User-Agent": "Mozilla/5.0", "Referer": "https://hdtodayz.to/" }, timeout: 8000 });
-                    // Improved regex to handle escaped slashes and common patterns
+                    const embedPage = await axios.get(embedLink, { 
+                        headers: { "User-Agent": "Mozilla/5.0", "Referer": "https://hdtodayz.to/" }, 
+                        timeout: 8000 
+                    });
+                    
                     const m3u8Regex = /["'](https?:\/\/[^"']+\.m3u8[^"']*)["']|["'](https?(?::|\\:)(?:\/|\\\/)(?:\/|\\\/)[^"']+\.m3u8[^"']*)["']/i;
                     const m3u8Match = embedPage.data.match(m3u8Regex);
+                    
                     if (m3u8Match) {
                         let m3u8Url = m3u8Match[1] || m3u8Match[2];
                         if (m3u8Url) {
                             m3u8Url = m3u8Url.replace(/\\/g, ""); // Clean up escaped slashes
                             console.log(`[Source] Found M3U8 in embed: ${m3u8Url}`);
-                            return res.json({ type: "m3u8", link: `/api/proxy?url=${encodeURIComponent(m3u8Url)}&referer=${encodeURIComponent("https://hdtodayz.to/")}`, server: server.name, totalServers: servers.length, currentIndex: i });
+                            return res.json({ 
+                                type: "m3u8", 
+                                link: `/api/proxy?url=${encodeURIComponent(m3u8Url)}&referer=${encodeURIComponent("https://hdtodayz.to/")}`, 
+                                server: server.name, 
+                                totalServers: servers.length, 
+                                currentIndex: i 
+                            });
                         }
                     } else {
                         console.log(`[Source] No M3U8 regex match in server ${server.name} HTML`);
@@ -898,13 +919,15 @@ app.get("/api/source", async (req, res) => {
                 return res.json({ type: "iframe", link: embedLink, server: server.name, totalServers: servers.length, currentIndex: i });
             } catch (err: any) {
                 console.error(`[Source] Server ${server.name} error:`, err.message);
-                if (index !== undefined) break;
+                if (err.response) console.error(`[Source] Status: ${err.response.status} | Data:`, err.response.data);
+                if (index !== undefined && i === serverIndex) break; // Don't try next if specific index was requested and failed
             }
         }
         return res.status(404).json({ error: "No playable source found" });
     } catch (error: any) {
         console.error(`[Source] Fatal error:`, error.message);
-        res.status(500).json({ error: "Failed to fetch source", message: error.message });
+        if (error.response) console.error(`[Source] API Error: ${error.response.status}`, error.response.data);
+        res.status(500).json({ error: "Failed to fetch source from hdtodayz.to", message: error.message });
     }
 });
 
